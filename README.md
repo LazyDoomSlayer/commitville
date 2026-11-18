@@ -8,6 +8,35 @@ The public project contains only fictional sample data and generic artwork. Real
 
 Commitville is in its foundation phase. The current app proves the browser runtime, rendering loop, simulation clock, automated checks, and deployment pipeline.
 
+Dnake, the intercom mascot, walks autonomously around an angled 2.5D office,
+avoiding furniture and pausing at the coffee station, desks, meeting area and
+lounge. Four facing directions and stepping frames reflect the route. Zoom,
+pan, fit the room or follow Dnake with the camera controls. A narrow screen starts
+in follow mode so the character stays readable.
+
+The office also includes C2-260, a broad charcoal controller mascot, and C3 Plus,
+a taller exposed-board mascot with a coin cell, relays and side terminals. All
+three have their own four-direction animation and patrol, avoid furniture and use
+cell reservations to avoid walking through one another. Select a mascot beside
+the activity text to inspect its routine or follow it.
+
+When friends meet on the floor, they pause, face one another and exchange speech
+bubbles. A nearby third mascot can join in. After the chat they resume their
+routes, with a cooldown between encounters.
+
+The earlier flat preview is still available at `?view=flat`, including optional
+licensed art. The default angled room uses original code-drawn geometry and needs
+no private files.
+
+![Ten coworkers and three mascots in the expanded office](docs/images/angled-office.png)
+
+The office now has a larger L-shaped footprint, ten desks and ten fictional
+coworkers alongside the three mascots. Some work at their desks while others
+wander through the studio and lounge or take coffee breaks. Their seeded
+schedules alternate work and breaks, and the HUD shows the current activity mix.
+Seven workstations have seats and three have standing desks. Workers use distinct
+seated or standing typing poses, with furniture and keyboards aligned to them.
+
 ## Stack
 
 - TypeScript for application and simulation logic

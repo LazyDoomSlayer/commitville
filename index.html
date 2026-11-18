@@ -10,13 +10,37 @@
   <body>
     <main id="app" aria-label="Commitville office simulation">
       <div id="game" aria-hidden="true"></div>
-      <section class="hud" aria-live="polite">
+      <section class="hud">
         <div>
           <p class="hud__eyebrow">Autonomous office simulation</p>
           <h1>Commitville</h1>
+          <p id="population-summary" class="hud__summary">10 coworkers · 3 mascots</p>
         </div>
         <time id="world-clock" class="hud__clock">MON 08:00</time>
       </section>
+      <aside class="office-status" aria-label="Selected mascot activity">
+        <span class="office-status__eyebrow"
+          ><span class="status-dot"></span>
+          <select id="mascot-select" aria-label="Selected mascot">
+            <option value="dnake">Dnake</option>
+            <option value="zkteco">C2-260</option>
+            <option value="c3plus">C3 Plus</option>
+          </select>
+          <span id="dnake-status">On rounds</span></span
+        >
+        <p id="dnake-activity" aria-live="polite">Welcoming you to the office</p>
+      </aside>
+      <nav class="camera-controls" aria-label="Office camera">
+        <div class="camera-controls__zoom">
+          <button id="zoom-out" type="button" aria-label="Zoom out" title="Zoom out (−)">−</button>
+          <output id="zoom-value" aria-label="Camera zoom">100%</output>
+          <button id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
+        </div>
+        <button id="fit-office" type="button" title="Fit office (0)">Fit office</button>
+        <button id="follow-mascot" type="button" aria-pressed="false" title="Follow Dnake (F)">
+          Follow Dnake
+        </button>
+      </nav>
       <p id="art-credit" class="art-credit" hidden></p>
       <noscript>Commitville requires JavaScript to run.</noscript>
     </main>

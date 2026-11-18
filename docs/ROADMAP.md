@@ -9,23 +9,31 @@ The roadmap is ordered by useful, observable milestones rather than speculative 
 - Deterministic world clock with tests
 - Repository rules, architecture, privacy boundary, CI, and PR workflow
 - GitHub Pages deployment pipeline
+- Angled 2.5D office, larger framing, zoom/pan and a follow camera
+- Dnake, C2-260 and C3 Plus mascots with four-direction walking, fixed-step patrols,
+  furniture collision and cell reservations
+
+- Larger L-shaped office with ten fictional coworkers, typing and seeded work/break routines
 
 ## 1. One believable workday
 
 - One fictional character
-- Office navigation and collision map
+- Expand Dnake's existing static-grid navigation into workday behaviors
 - Arrival, work, coffee, break, and departure behaviors
 - Energy and focus needs
-- Fixed-step simulation runtime
+- Expand fixed-step navigation into a complete world runtime
 - Save and restore after refresh
 
 Success means a viewer can watch one character complete a recognizable day without intervention.
 
 ## 2. A small team
 
-- Five fictional characters with distinct roles and traits
+The device mascots now have proximity conversations, turn-taking and speech
+bubbles. Ten fictional coworkers now alternate work and wandering. Relationships and deeper workday behavior remain ahead.
+
+- Deepen the ten fictional coworkers' roles and traits
 - Shared tasks and pair interactions
-- Conversation bubbles
+- Extend conversations to coworkers
 - Relationships and social needs
 - Meetings and lunch routines
 

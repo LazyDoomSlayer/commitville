@@ -56,6 +56,27 @@ describe('private assets service', () => {
     expect(parsePrivateAssetsManifest(validManifest)).toEqual(validManifest);
   });
 
+  it('accepts all eight NPC sheets while retaining older four-sheet manifests', () => {
+    const manifest = structuredClone(validManifest);
+    Object.assign(manifest.packs.pixelwoodValley!.assets, {
+      npcFive: 'pixelwood-valley/npc-5.png',
+      npcSix: 'pixelwood-valley/npc-6.png',
+      npcSeven: 'pixelwood-valley/npc-7.png',
+      npcEight: 'pixelwood-valley/npc-8.png',
+    });
+    expect(parsePrivateAssetsManifest(manifest)).toEqual(manifest);
+    expect(parsePrivateAssetsManifest(validManifest)).toEqual(validManifest);
+    Object.assign(manifest.packs.pixelwoodValley!.assets, { npcEight: 8 });
+    expect(parsePrivateAssetsManifest(manifest)).toBeNull();
+  });
+
+  it('falls back when a manifest request fails or times out', async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockRejectedValue(new DOMException('Timed out', 'TimeoutError'));
+    await expect(loadPrivateAssets('/', fetcher)).resolves.toBeNull();
+  });
+
   it('accepts Donarg Office without Pixelwood', () => {
     const manifest: PrivateAssetsManifest = {
       schemaVersion: 1,
@@ -83,6 +104,7 @@ describe('private assets service', () => {
     await expect(loadPrivateAssets('/Commitville/', fetcher)).resolves.toEqual(validManifest);
     expect(fetcher).toHaveBeenCalledWith('/Commitville/assets/private/manifest.json', {
       cache: 'no-store',
+      signal: expect.any(AbortSignal),
     });
   });
 });

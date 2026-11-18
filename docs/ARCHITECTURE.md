@@ -55,7 +55,12 @@ Rendering code projects world state onto the screen. It owns Phaser scenes, came
 
 Services will own browser storage and external communication. A scene or simulation system should ask a service to load or save data rather than knowing where that data lives.
 
-There is no `src/services` directory yet because the foundation has no external communication or durable persistence. We add the directory when that responsibility exists, not before.
+The asset service validates and loads optional local manifests for both views,
+with a bounded startup request and public fallback. The angled scene delegates
+licensed NPC frame selection, scale and seated occlusion to
+`pixelwood-coworkers.renderer.ts`; simulation remains independent of art packs.
+See ADR 0009 for licensed character integration and pose limitations.
+Durable persistence has not been implemented.
 
 ### Application shell
 
@@ -63,7 +68,11 @@ There is no `src/services` directory yet because the foundation has no external 
 
 ## Simulation loop direction
 
-The current foundation proves an independent world clock. The next simulation milestone will introduce a fixed-step runtime:
+The world clock remains independent. Mascot navigation consumes elapsed time
+in fixed 50 ms steps, with rendering projecting its position and facing direction.
+Furniture footprints in `src/simulation/office` drive both pathfinding and visual
+placement. No Phaser or DOM APIs enter simulation code. The larger world runtime
+will build on this direction:
 
 ```text
 real elapsed time
@@ -75,7 +84,24 @@ immutable/read-only world snapshot
 Phaser visual projection + DOM HUD
 ```
 
-A fixed step keeps behavior reproducible when frame rates vary on Raspberry Pi hardware.
+A fixed step keeps navigation reproducible as frame timing varies. Rendering
+caps catch-up after background pauses. `OfficePatrolSystem` owns one routine;
+`OfficePopulationSystem` coordinates Dnake, C2-260, C3 Plus and ten fictional coworkers with cell reservations. See
+ADR 0005 for deterministic scheduling and shared-path behavior. The current
+roster advances in a stable order and reserves against every other mascot's
+current segment; the thirteen routes are verified together for separation and
+progress through all destinations. Camera changes and resizing do not reset
+the simulation. `MascotConversationSystem` owns proximity encounters and dialogue;
+the patrol coordinator pauses participants while preserving their routes and
+reserved cells. Social snapshots expose facing, idle and speech state. The UI
+owns the clamped screen-space speech bubble. See ADR 0006 for encounter timing
+and ownership. `CoworkerSystem` uses seeded work/break routes from the fictional
+roster. The shared L-shaped floor predicate drives both navigation and floor
+rendering; camera extents follow the projected footprint. See ADR 0007 for the
+expanded office and population. `WORKSTATIONS` owns desk positions and work
+postures; coworker assignments and rendered furniture derive from it. Assigned
+seat access is explicit in navigation, while other chairs remain obstacles.
+See ADR 0008 for seating and standing behavior. See ADR 0004 for the isometric and navigation decisions.
 
 ## Configuration
 

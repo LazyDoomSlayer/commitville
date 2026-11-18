@@ -60,7 +60,11 @@ The cache and the resulting private `dist/` build are local deployment artifacts
 
 ## Public fallback
 
-When the private manifest is absent, Commitville renders its generic code-created placeholder office. GitHub Pages always uses this fallback because CI runs from a clean public checkout.
+The default angled office uses original geometry with optional purchased Pixelwood
+characters. Without the private manifest it uses original public fallback people.
+In the flat preview, an absent private manifest selects the generic placeholder
+office. GitHub Pages runs from a clean checkout, so licensed packs are never
+available there.
 
 ## Adding another pack
 
@@ -71,3 +75,82 @@ Before integrating another licensed pack:
 3. Copy only the files needed at runtime.
 4. Preserve a functional public fallback.
 5. Do not mix packs until their scale, perspective, palette, and license are verified.
+
+## Dnake mascot
+
+`src/rendering/sprites/dnake.texture.ts` owns the original mascot's four-direction
+pixel atlas: 24×40 cells, four poses per direction, and a nine-color palette. Each
+source grid cell becomes one solid texture pixel. The walking animation alternates
+feet and arms; the back has vents and a service panel, while the side views have a
+narrow casing and lens profile. The scene selects direction and gait from
+simulation state, with integer sprite scale and rounded projected positions.
+Continuous camera zoom can change the final screen pixel size.
+
+The design retains the camera, screen face, keypad, and silver casing from the
+owner-supplied DNAKE device photos and the initial generated concept. The large
+concept image has been replaced by explicit runtime pixels. Neither licensed
+artwork nor private device identifiers are used in the texture.
+
+The default angled office uses original projected geometry for the floor, walls
+and furniture; no purchased artwork is transformed or used as a generation
+reference. The earlier licensed preview is retained at `?view=flat`. It uses the
+mascot's idle frame; autonomous walking and camera controls belong to the angled
+view. Both views work without private asset files.
+
+## ZKTeco C2-260 mascot
+
+`src/rendering/sprites/zkteco.texture.ts` owns an original 36×36 pixel atlas with
+four facing directions, four poses per direction and nine colors. The mascot
+keeps the photographed device's broad charcoal housing, inset corners, connector
+rows and red/green/amber status lights. Rear frames show a mounting bracket;
+profiles show simplified Ethernet, USB and switch details. Small invented eyes,
+a smile and limbs give the screenless controller its character.
+
+The sprite is constructed from solid pixel rectangles, without a generated
+illustration or a photographic texture. Its references are owner-supplied device
+photos, independent of the licensed packs. No photos, wiring, identifiers or
+private configuration are shipped. The status lights are fictional artwork,
+not a live device-health indicator.
+
+C2-260 roams alongside Dnake in the angled office. Use the mascot selector beside
+the activity text to choose which character the camera follows. The earlier flat
+preview retains only Dnake.
+
+## ZKTeco C3 Plus mascot
+
+`src/rendering/sprites/c3-plus.texture.ts` owns an original 32×48 pixel atlas with
+four directions, four poses per direction and ten colors. Based on owner-supplied
+photos, it keeps the tall exposed PCB, deep upper cover, silver coin cell, side
+terminal strips, Ethernet jack, relays and paired lower capacitors. Small invented
+eyes and a smile sit on the cover; no display is added to the screenless board.
+Rear frames show abstract solder pads and traces, while profiles show the thin
+board and raised components.
+
+The reference photographs, MAC/serial labels, QR codes and actual circuit wiring
+are not shipped. The artwork uses solid native pixels and simplified fictional
+traces, independently of the licensed packs. C3 Plus joins Dnake and C2-260 in
+the angled office with its own patrol and selectable follow camera. The earlier
+flat preview remains unchanged.
+
+## Fictional coworkers
+
+`src/rendering/sprites/coworker.texture.ts` draws ten original 24×40 pixel people
+with distinct shirt, hair and skin palettes. Each has front/back/profile walking
+frames and separate standing/seated typing poses, including compact legs tucked beneath the desk for seated work. These sprites are independent of the
+licensed packs and do not depict real employees. The fictional names, tasks and
+home workstations live in `src/simulation/characters/coworker-roster.ts`.
+
+When prepared locally, the angled office instead uses all eight purchased
+Pixelwood NPC sheets (`NPCs/1.png` through `8.png`), repeating two designs for the
+ten fictional coworkers. The renderer extracts idle and four-frame directional
+walks from the native 59×49 cells, mirrors side-facing frames for west, and uses
+integer scale three with nearest-neighbor filtering. Private desk heights are
+adjusted to the native chibi proportions. These are technical integrations
+of the purchased files, not generated imitations.
+
+The inspected sheets have no seated poses. Seated workers use a seat-aligned idle
+upper body with feet cropped behind the chair/desk; standing workers retain the
+full body. This is furniture occlusion, not an authored seated or typing animation.
+Missing or invalid individual sheets are skipped; absent private art falls back
+to the original public people. Private screenshots must remain in ignored local
+review folders, never committed with the pack art.

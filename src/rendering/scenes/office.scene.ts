@@ -1,64 +1,60 @@
+import {
+  PRIVATE_ASSETS_REGISTRY_KEY,
+  type PrivateAssetsManifest,
+} from '../../services/assets/private-assets.service';
+import {
+  queuePixelwoodCoworkers,
+  preparePixelwoodCoworkers,
+  applyPixelwoodCoworker,
+} from '../sprites/pixelwood-coworkers.renderer';
+import { COWORKERS } from '../../simulation/characters/coworker-roster';
+import {
+  createCoworkerTextures,
+  coworkerTextureKey,
+  coworkerFrame,
+} from '../sprites/coworker.texture';
 import Phaser from 'phaser';
 
 import {
-  PRIVATE_ASSETS_REGISTRY_KEY,
-  type DonargAssetPaths,
-  type DonargOfficePackManifest,
-  type PixelwoodAssetPaths,
-  type PixelwoodPackManifest,
-  type PrivateAssetsManifest,
-} from '../../services/assets/private-assets.service';
-
-const COLORS = {
-  wall: 0x22313d,
-  floor: 0x2d4450,
-  floorLine: 0x35515e,
-  desk: 0xb06b3f,
-  deskEdge: 0x70432f,
-  monitor: 0x14222b,
-  monitorGlow: 0x77e6b6,
-  plant: 0x55a66f,
-  coffee: 0xf0bf6a,
-  pixelwoodWall: 0x332b2f,
-  pixelwoodFloor: 0x8d552f,
-  pixelwoodFloorLight: 0xa9643a,
-  pixelwoodScreen: 0x8fd3c1,
-} as const;
-
-const PIXELWOOD_TEXTURES: Record<keyof PixelwoodAssetPaths, string> = {
-  interiorTiles: 'pixelwood-interior-tiles',
-  deskFront: 'pixelwood-desk-front',
-  deskBack: 'pixelwood-desk-back',
-  chairFront: 'pixelwood-chair-front',
-  chairBack: 'pixelwood-chair-back',
-  bookshelf: 'pixelwood-bookshelf',
-  bookshelfBack: 'pixelwood-bookshelf-back',
-  window: 'pixelwood-window',
-  meetingTable: 'pixelwood-meeting-table',
-  plantOne: 'pixelwood-plant-1',
-  plantThree: 'pixelwood-plant-3',
-  npcOne: 'pixelwood-npc-1',
-  npcTwo: 'pixelwood-npc-2',
-  npcThree: 'pixelwood-npc-3',
-  npcFour: 'pixelwood-npc-4',
-};
-
-const DONARG_TEXTURES: Record<keyof DonargAssetPaths, string> = {
-  tileset: 'donarg-office-tileset',
-  tilesetNoShadow: 'donarg-office-tileset-no-shadow',
-  officeDesign: 'donarg-office-design',
-};
-
-const NPC_ASSET_NAMES: ReadonlyArray<keyof PixelwoodAssetPaths> = [
-  'npcOne',
-  'npcTwo',
-  'npcThree',
-  'npcFour',
-];
+  MASCOT_IDS,
+  MASCOT_NAMES,
+  OfficePopulationSystem,
+  type MascotId,
+} from '../../simulation/characters/office-population.system';
+import type { PatrolDirection } from '../../simulation/characters/office-patrol.system';
+import { createMascotSpeech } from '../../ui/mascot-speech';
+import { bindOfficeControls } from '../../ui/office-camera';
+import {
+  OFFICE_VIEW,
+  drawIsometricOffice,
+  projectOfficePoint,
+} from '../office/isometric-office.renderer';
+import { createC3PlusTexture, C3_PLUS_TEXTURE_KEY, c3PlusFrame } from '../sprites/c3-plus.texture';
+import { createDnakeTexture, DNAKE_TEXTURE_KEY, dnakeFrame } from '../sprites/dnake.texture';
+import { createZktecoTexture, ZKTECO_TEXTURE_KEY, zktecoFrame } from '../sprites/zkteco.texture';
 
 export class OfficeScene extends Phaser.Scene {
-  private pixelwoodPack: PixelwoodPackManifest | null = null;
-  private donargPack: DonargOfficePackManifest | null = null;
+  private readonly population = new OfficePopulationSystem();
+  private selectedMascot: MascotId = 'dnake';
+  private readonly coworkers: {
+    sprite: Phaser.GameObjects.Sprite;
+    shadow: Phaser.GameObjects.Ellipse;
+  }[] = [];
+  private readonly visuals = new Map<
+    MascotId,
+    {
+      sprite: Phaser.GameObjects.Sprite;
+      shadow: Phaser.GameObjects.Ellipse;
+      frame: (direction: PatrolDirection, phase: number) => string;
+    }
+  >();
+  private controls: ReturnType<typeof bindOfficeControls> | undefined;
+  private speech: ReturnType<typeof createMascotSpeech> | undefined;
+  private licensedCoworkers: string[] = [];
+  private fitZoom = 1;
+  private following = false;
+  private dragLast: { x: number; y: number } | undefined;
+  private pinchDistance = 0;
 
   constructor() {
     super('office');
@@ -66,301 +62,248 @@ export class OfficeScene extends Phaser.Scene {
 
   preload(): void {
     const manifest = this.registry.get(PRIVATE_ASSETS_REGISTRY_KEY) as PrivateAssetsManifest | null;
-
-    this.pixelwoodPack = manifest?.packs.pixelwoodValley ?? null;
-    this.donargPack = manifest?.packs.donargOffice ?? null;
-
-    if (!this.pixelwoodPack && !this.donargPack) {
-      return;
-    }
-
-    const privateAssetBaseUrl = `${import.meta.env.BASE_URL}assets/private/`;
-
-    if (this.pixelwoodPack) {
-      for (const [name, relativePath] of Object.entries(this.pixelwoodPack.assets) as Array<
-        [keyof PixelwoodAssetPaths, string]
-      >) {
-        const textureKey = PIXELWOOD_TEXTURES[name];
-
-        if (this.textures.exists(textureKey)) {
-          continue;
-        }
-
-        const assetUrl = `${privateAssetBaseUrl}${relativePath}`;
-
-        if (NPC_ASSET_NAMES.includes(name)) {
-          this.load.spritesheet(textureKey, assetUrl, {
-            frameWidth: this.pixelwoodPack.npcFrame.width,
-            frameHeight: this.pixelwoodPack.npcFrame.height,
-          });
-        } else {
-          this.load.image(textureKey, assetUrl);
-        }
-      }
-    }
-
-    if (this.donargPack) {
-      for (const [name, relativePath] of Object.entries(this.donargPack.assets) as Array<
-        [keyof DonargAssetPaths, string]
-      >) {
-        const textureKey = DONARG_TEXTURES[name];
-
-        if (!this.textures.exists(textureKey)) {
-          this.load.image(textureKey, `${privateAssetBaseUrl}${relativePath}`);
-        }
-      }
-    }
+    queuePixelwoodCoworkers(this, manifest?.packs.pixelwoodValley);
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor(COLORS.wall);
+    this.licensedCoworkers = preparePixelwoodCoworkers(this.textures);
+    createDnakeTexture(this.textures);
+    createZktecoTexture(this.textures);
+    createC3PlusTexture(this.textures);
+    this.cameras.main.setBackgroundColor('#172a32');
+    drawIsometricOffice(this, this.licensedCoworkers.length > 0);
+    createCoworkerTextures(this.textures);
+    COWORKERS.forEach((_, index) =>
+      this.coworkers.push({
+        sprite: this.add
+          .sprite(0, 0, coworkerTextureKey(index), 'south-0')
+          .setOrigin(0.5, 38 / 40)
+          .setScale(2),
+        shadow: this.add.ellipse(0, 0, 20, 9, 0x1d3e43, 0.25),
+      }),
+    );
+    this.addMascot('dnake', DNAKE_TEXTURE_KEY, dnakeFrame, 0.95, 27);
+    this.addMascot('zkteco', ZKTECO_TEXTURE_KEY, zktecoFrame, 34 / 36, 40);
+    this.addMascot('c3plus', C3_PLUS_TEXTURE_KEY, c3PlusFrame, 46 / 48, 33);
 
-    if (this.donargPack && this.textures.exists(DONARG_TEXTURES.officeDesign)) {
-      this.drawDonargOffice();
-    } else if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.deskFront)) {
-      this.drawPixelwoodOffice();
-    } else {
-      this.drawFoundationOffice();
+    this.speech = createMascotSpeech();
+    this.controls = bindOfficeControls({
+      select: (id) => {
+        this.selectedMascot = id;
+        this.updateControls();
+      },
+      zoom: (steps) => this.zoomTo(this.cameras.main.zoom + steps * 0.25),
+      fit: () => this.fitOffice(),
+      follow: () => {
+        this.following = !this.following;
+        if (this.following) this.zoomTo(Math.max(1.5, this.cameras.main.zoom));
+        this.updateControls();
+      },
+    });
+    this.resizeCamera(true);
+    this.scale.on('resize', this.onResize, this);
+    this.bindPointerControls();
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off('resize', this.onResize, this);
+      this.controls?.destroy();
+      this.speech?.destroy();
+    });
+    this.update(0, 0);
+  }
+
+  update(_time: number, delta: number): void {
+    // A background-tab resume pauses the ambient routine instead of racing
+    // through minutes of movement. The domain consumes fixed 50 ms steps.
+    const states = this.population.advance(Math.min(delta, 250));
+    for (const id of MASCOT_IDS) {
+      const state = states[id];
+      const position = projectOfficePoint(state.x, state.y);
+      const depth = (state.x + state.y) * 100;
+      const phase = state.walking ? Math.floor(state.walkingMs / 140) % 4 : 0;
+      const { sprite, shadow, frame } = this.visuals.get(id)!;
+      sprite
+        .setPosition(position.x, position.y)
+        .setDepth(depth)
+        .setFrame(frame(state.direction, phase));
+      shadow.setPosition(position.x, position.y).setDepth(depth - 1);
+      if (this.following && id === this.selectedMascot)
+        this.cameras.main.centerOn(position.x, position.y - 25);
     }
+    states.coworkers.forEach((person, index) => {
+      const point = projectOfficePoint(person.x, person.y);
+      const { sprite, shadow } = this.coworkers[index]!;
+      const frame = person.working
+        ? `${person.workPosture}-work-${Math.floor(_time / 300 + index) % 2}`
+        : coworkerFrame(
+            person.direction,
+            person.walking ? Math.floor(person.walkingMs / 140) % 4 : 0,
+          );
+      sprite.setPosition(point.x, point.y).setDepth((person.x + person.y) * 100);
+      if (this.licensedCoworkers.length === 0) sprite.setFrame(frame);
+      else {
+        const key = this.licensedCoworkers[index % this.licensedCoworkers.length]!;
+        const seatedOffset = applyPixelwoodCoworker(sprite, key, person);
+        sprite.setPosition(point.x, point.y + seatedOffset);
+      }
+      shadow.setPosition(point.x, point.y).setDepth(sprite.depth - 1);
+    });
+    const speaker = MASCOT_IDS.find((id) => states[id].speech !== null);
+    if (speaker) {
+      const camera = this.cameras.main;
+      const sprite = this.visuals.get(speaker)!.sprite;
+      const centerX = camera.scrollX + camera.width / 2;
+      const centerY = camera.scrollY + camera.height / 2;
+      this.speech?.update({
+        name: MASCOT_NAMES[speaker],
+        text: states[speaker].speech!,
+        x: camera.x + camera.width / 2 + (sprite.x - centerX) * camera.zoom,
+        headY:
+          camera.y +
+          camera.height / 2 +
+          (sprite.y - sprite.displayHeight * sprite.originY - centerY) * camera.zoom,
+        left: camera.x,
+        top: camera.y,
+        width: camera.width,
+        bottom: camera.y + camera.height,
+      });
+    } else this.speech?.update(null);
+    this.updateControls();
+  }
 
-    this.scale.on('resize', () => {
-      this.scene.restart();
+  private addMascot(
+    id: MascotId,
+    texture: string,
+    frame: (direction: PatrolDirection, phase?: number) => string,
+    originY: number,
+    shadowWidth: number,
+  ): void {
+    this.visuals.set(id, {
+      sprite: this.add.sprite(0, 0, texture, frame('south')).setOrigin(0.5, originY).setScale(2),
+      shadow: this.add.ellipse(0, 0, shadowWidth, 12, 0x1d3e43, 0.3),
+      frame,
     });
   }
 
-  private drawDonargOffice(): void {
+  private readonly onResize = (): void => this.resizeCamera(false);
+
+  private resizeCamera(initial: boolean): void {
     const { width, height } = this.scale;
-    const sourceWidth = 512;
-    const sourceHeight = 448;
-    const top = Math.max(82, height * 0.13);
-    const availableWidth = width - 32;
-    const availableHeight = height - top - 24;
-    const officeScale = Math.min(1.5, availableWidth / sourceWidth, availableHeight / sourceHeight);
-    const centerX = width / 2;
-    const left = centerX - (sourceWidth * officeScale) / 2;
-
-    this.add
-      .image(centerX, top, DONARG_TEXTURES.officeDesign)
-      .setScale(officeScale)
-      .setOrigin(0.5, 0);
-
-    if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.npcOne)) {
-      const placements: Array<{
-        x: number;
-        y: number;
-        texture: (typeof NPC_ASSET_NAMES)[number];
-      }> = [
-        { x: 112, y: 218, texture: 'npcOne' },
-        { x: 208, y: 218, texture: 'npcTwo' },
-        { x: 112, y: 322, texture: 'npcThree' },
-        { x: 208, y: 322, texture: 'npcFour' },
-      ];
-
-      for (const placement of placements) {
-        this.add
-          .sprite(
-            left + placement.x * officeScale,
-            top + placement.y * officeScale,
-            PIXELWOOD_TEXTURES[placement.texture],
-            0,
-          )
-          .setScale(officeScale)
-          .setOrigin(0.5, 0.72);
-      }
+    const top = width <= 480 ? 66 : 100;
+    const bottom = width <= 900 ? 152 : 100;
+    const viewportHeight = Math.max(120, height - top - bottom);
+    const camera = this.cameras.main;
+    camera.setViewport(0, top, width, viewportHeight);
+    const previousFit = this.fitZoom;
+    this.fitZoom =
+      Math.min(
+        (width - 32) / (OFFICE_VIEW.right - OFFICE_VIEW.left),
+        viewportHeight / (OFFICE_VIEW.bottom - OFFICE_VIEW.top),
+      ) * 0.96;
+    if (initial) {
+      if (width <= 600) {
+        this.following = true;
+        camera.setZoom(1.5);
+      } else this.fitOffice();
+    } else if (!this.following) {
+      // Keep a manually zoomed view when the display rotates; an overview
+      // remains an overview without restarting Dnake's day.
+      if (Math.abs(camera.zoom - previousFit) < 0.01) this.fitOffice();
     }
-
-    this.add
-      .text(centerX, top + 18, 'AUTONOMOUS OFFICE · PRIVATE PREVIEW', {
-        color: '#5e4f4c',
-        backgroundColor: '#f7f2df',
-        fontFamily: 'monospace',
-        fontSize: officeScale >= 0.8 ? '10px' : '7px',
-        letterSpacing: 1,
-        padding: { x: 5, y: 3 },
-      })
-      .setOrigin(0.5, 0);
+    this.updateControls();
   }
 
-  private drawPixelwoodOffice(): void {
-    const { width, height } = this.scale;
-    const graphics = this.add.graphics();
-    const roomX = Math.max(20, width * 0.06);
-    const roomY = Math.max(96, height * 0.17);
-    const roomWidth = width - roomX * 2;
-    const roomHeight = height - roomY - Math.max(28, height * 0.06);
-    const assetScale = roomWidth >= 760 ? 3 : 2;
-    const centerX = width / 2;
-
-    graphics.fillStyle(COLORS.pixelwoodWall, 1);
-    graphics.fillRect(roomX - 10, roomY - 18, roomWidth + 20, roomHeight + 28);
-    graphics.fillStyle(COLORS.pixelwoodFloor, 1);
-    graphics.fillRect(roomX, roomY, roomWidth, roomHeight);
-
-    const floorTileSize = 16 * assetScale;
-    graphics.lineStyle(1, COLORS.pixelwoodFloorLight, 0.32);
-    for (let x = roomX; x <= roomX + roomWidth; x += floorTileSize) {
-      graphics.lineBetween(x, roomY, x, roomY + roomHeight);
-    }
-    for (let y = roomY; y <= roomY + roomHeight; y += floorTileSize) {
-      graphics.lineBetween(roomX, y, roomX + roomWidth, y);
-    }
-
-    const windowY = roomY + 8;
-    for (let x = roomX + 52; x < roomX + roomWidth - 40; x += 96) {
-      this.add.image(x, windowY, PIXELWOOD_TEXTURES.window).setScale(assetScale).setOrigin(0.5, 0);
-    }
-
-    this.add
-      .image(roomX + 20, roomY + 16, PIXELWOOD_TEXTURES.bookshelfBack)
-      .setScale(assetScale)
-      .setOrigin(0, 0);
-    this.add
-      .image(roomX + roomWidth - 20, roomY + 16, PIXELWOOD_TEXTURES.bookshelfBack)
-      .setScale(assetScale)
-      .setOrigin(1, 0);
-
-    if (roomWidth >= 620) {
-      const deskY = roomY + roomHeight * 0.5;
-      this.drawPixelwoodWorkstation(centerX - 190, deskY, 'npcOne', assetScale);
-      this.drawPixelwoodWorkstation(centerX + 190, deskY, 'npcTwo', assetScale);
-
-      this.add
-        .image(centerX, roomY + roomHeight - 60, PIXELWOOD_TEXTURES.meetingTable)
-        .setScale(assetScale)
-        .setOrigin(0.5, 1);
-      this.add
-        .sprite(centerX - 74, roomY + roomHeight - 70, PIXELWOOD_TEXTURES.npcThree, 0)
-        .setScale(assetScale * 0.78)
-        .setOrigin(0.5, 0.72);
-      this.add
-        .sprite(centerX + 74, roomY + roomHeight - 70, PIXELWOOD_TEXTURES.npcFour, 0)
-        .setScale(assetScale * 0.78)
-        .setOrigin(0.5, 0.72);
-    } else {
-      this.drawPixelwoodWorkstation(centerX, roomY + roomHeight * 0.46, 'npcOne', assetScale);
-      this.add
-        .image(centerX, roomY + roomHeight - 36, PIXELWOOD_TEXTURES.meetingTable)
-        .setScale(assetScale)
-        .setOrigin(0.5, 1);
-    }
-
-    this.add
-      .image(roomX + 34, roomY + roomHeight - 18, PIXELWOOD_TEXTURES.plantOne)
-      .setScale(assetScale)
-      .setOrigin(0.5, 1);
-    this.add
-      .image(roomX + roomWidth - 34, roomY + roomHeight - 18, PIXELWOOD_TEXTURES.plantThree)
-      .setScale(assetScale)
-      .setOrigin(0.5, 1);
-
-    this.add
-      .text(centerX, roomY + 48, 'PRIVATE ART PREVIEW', {
-        color: '#f4d6a1',
-        fontFamily: 'monospace',
-        fontSize: roomWidth >= 620 ? '13px' : '9px',
-        letterSpacing: 2,
-      })
-      .setOrigin(0.5);
+  private fitOffice(): void {
+    this.following = false;
+    this.cameras.main.setZoom(this.fitZoom).centerOn(OFFICE_VIEW.centerX, OFFICE_VIEW.centerY);
+    this.updateControls();
   }
 
-  private drawPixelwoodWorkstation(
-    x: number,
-    y: number,
-    npcName: (typeof NPC_ASSET_NAMES)[number],
-    assetScale: number,
-  ): void {
-    this.add.image(x, y, PIXELWOOD_TEXTURES.chairBack).setScale(assetScale).setOrigin(0.5, 1);
-    this.add
-      .sprite(x, y - assetScale * 8, PIXELWOOD_TEXTURES[npcName], 0)
-      .setScale(assetScale * 0.78)
-      .setOrigin(0.5, 0.72);
-    this.add
-      .image(x, y + assetScale * 8, PIXELWOOD_TEXTURES.deskFront)
-      .setScale(assetScale)
-      .setOrigin(0.5, 0);
+  private zoomTo(zoom: number, anchor?: { x: number; y: number }): void {
+    const camera = this.cameras.main;
+    const next = Phaser.Math.Clamp(zoom, Math.min(0.5, this.fitZoom), 4);
+    if (anchor && !this.following) {
+      const before = camera.getWorldPoint(anchor.x, anchor.y);
+      camera.setZoom(next);
+      // preRender refreshes the inverse projection before measuring the same
+      // screen anchor, so the floor under the wheel/pinch stays in place.
+      camera.preRender();
+      const after = camera.getWorldPoint(anchor.x, anchor.y);
+      camera.scrollX += before.x - after.x;
+      camera.scrollY += before.y - after.y;
+    } else camera.setZoom(next);
+    this.updateControls();
+  }
 
-    const screen = this.add.rectangle(
-      x,
-      y + assetScale * 12,
-      assetScale * 10,
-      assetScale * 6,
-      COLORS.pixelwoodScreen,
-      1,
+  private bindPointerControls(): void {
+    this.input.addPointer(1);
+    this.input.on(
+      'wheel',
+      (pointer: Phaser.Input.Pointer, _objects: unknown[], _dx: number, dy: number) => {
+        if (dy !== 0) this.zoomTo(this.cameras.main.zoom * (dy > 0 ? 0.9 : 1.1), pointer);
+      },
     );
-    screen.setStrokeStyle(Math.max(1, assetScale - 1), 0x221c1d, 1);
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      this.dragLast = { x: pointer.x, y: pointer.y };
+      this.pinchDistance = 0;
+    });
+    this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      const touches = [this.input.pointer1, this.input.pointer2].filter((touch) => touch.isDown);
+      if (touches.length === 2) {
+        const first = touches[0]!;
+        const second = touches[1]!;
+        const distance = Phaser.Math.Distance.Between(first.x, first.y, second.x, second.y);
+        if (this.pinchDistance > 0) {
+          this.zoomTo((this.cameras.main.zoom * distance) / this.pinchDistance, {
+            x: (first.x + second.x) / 2,
+            y: (first.y + second.y) / 2,
+          });
+        }
+        this.pinchDistance = distance;
+        this.dragLast = undefined;
+      } else if (pointer.isDown) {
+        if (this.dragLast) {
+          const dx = pointer.x - this.dragLast.x;
+          const dy = pointer.y - this.dragLast.y;
+          if (dx !== 0 || dy !== 0) {
+            this.following = false;
+            const camera = this.cameras.main;
+            camera.centerOn(
+              Phaser.Math.Clamp(
+                camera.scrollX + camera.width / 2 - dx / camera.zoom,
+                OFFICE_VIEW.left,
+                OFFICE_VIEW.right,
+              ),
+              Phaser.Math.Clamp(
+                camera.scrollY + camera.height / 2 - dy / camera.zoom,
+                OFFICE_VIEW.top,
+                OFFICE_VIEW.bottom,
+              ),
+            );
+            this.updateControls();
+          }
+        }
+        this.dragLast = { x: pointer.x, y: pointer.y };
+      }
+    });
+    this.input.on('pointerup', () => {
+      this.dragLast = undefined;
+      this.pinchDistance = 0;
+    });
   }
 
-  private drawFoundationOffice(): void {
-    const { width, height } = this.scale;
-    const graphics = this.add.graphics();
-    const roomX = Math.max(24, width * 0.08);
-    const roomY = Math.max(110, height * 0.2);
-    const roomWidth = width - roomX * 2;
-    const roomHeight = height - roomY - Math.max(36, height * 0.08);
-
-    graphics.fillStyle(COLORS.floor, 1);
-    graphics.fillRect(roomX, roomY, roomWidth, roomHeight);
-
-    graphics.lineStyle(1, COLORS.floorLine, 0.55);
-    for (let x = roomX; x <= roomX + roomWidth; x += 32) {
-      graphics.lineBetween(x, roomY, x, roomY + roomHeight);
-    }
-    for (let y = roomY; y <= roomY + roomHeight; y += 32) {
-      graphics.lineBetween(roomX, y, roomX + roomWidth, y);
-    }
-
-    const centerX = width / 2;
-    const centerY = roomY + roomHeight / 2;
-    if (roomWidth >= 700) {
-      this.drawDesk(graphics, centerX - 190, centerY - 70);
-      this.drawDesk(graphics, centerX + 30, centerY - 70);
-      this.drawDesk(graphics, centerX - 190, centerY + 90);
-      this.drawDesk(graphics, centerX + 30, centerY + 90);
-    } else {
-      this.drawDesk(graphics, centerX - 78, centerY - 96);
-      this.drawDesk(graphics, centerX - 78, centerY + 74);
-    }
-
-    graphics.fillStyle(COLORS.plant, 1);
-    graphics.fillCircle(roomX + 44, roomY + 44, 18);
-    graphics.fillCircle(roomX + 68, roomY + 52, 14);
-
-    graphics.fillStyle(COLORS.coffee, 1);
-    graphics.fillRect(roomX + roomWidth - 92, roomY + 28, 48, 62);
-
-    const statusY = roomWidth >= 700 ? centerY + 8 : roomY + roomHeight - 70;
-    const statusWidth = Math.max(120, roomWidth - 32);
-
-    this.add
-      .text(centerX, statusY, 'THE OFFICE IS BOOTING UP', {
-        color: '#d7fbe8',
-        fontFamily: 'monospace',
-        fontSize: roomWidth >= 700 ? '16px' : '11px',
-        letterSpacing: 2,
-        align: 'center',
-        wordWrap: { width: statusWidth },
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .text(centerX, statusY + 30, 'characters arrive in the next milestone', {
-        color: '#86a8b5',
-        fontFamily: 'monospace',
-        fontSize: roomWidth >= 700 ? '12px' : '9px',
-        align: 'center',
-        wordWrap: { width: statusWidth },
-      })
-      .setOrigin(0.5);
-  }
-
-  private drawDesk(graphics: Phaser.GameObjects.Graphics, x: number, y: number): void {
-    graphics.fillStyle(COLORS.deskEdge, 1);
-    graphics.fillRect(x + 4, y + 8, 156, 62);
-    graphics.fillStyle(COLORS.desk, 1);
-    graphics.fillRect(x, y, 156, 58);
-    graphics.fillStyle(COLORS.monitor, 1);
-    graphics.fillRect(x + 52, y + 10, 54, 30);
-    graphics.fillStyle(COLORS.monitorGlow, 0.8);
-    graphics.fillRect(x + 57, y + 15, 44, 20);
+  private updateControls(): void {
+    const population = this.population.snapshot();
+    const state = population[this.selectedMascot];
+    this.controls?.update({
+      zoom: this.cameras.main.zoom,
+      minimumZoom: Math.min(0.5, this.fitZoom),
+      following: this.following,
+      target: this.selectedMascot,
+      activity: state.activity,
+      walking: state.walking,
+      talking: state.talking,
+      workers: population.coworkers.filter((person) => person.working).length,
+      walkers: population.coworkers.filter((person) => person.walking).length,
+    });
   }
 }

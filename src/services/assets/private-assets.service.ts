@@ -14,6 +14,10 @@ export interface PixelwoodAssetPaths {
   npcTwo: string;
   npcThree: string;
   npcFour: string;
+  npcFive?: string;
+  npcSix?: string;
+  npcSeven?: string;
+  npcEight?: string;
 }
 
 export interface PixelwoodPackManifest {
@@ -114,7 +118,10 @@ export const parsePrivateAssetsManifest = (value: unknown): PrivateAssetsManifes
       !isRecord(npcFrame) ||
       typeof npcFrame.width !== 'number' ||
       typeof npcFrame.height !== 'number' ||
-      pixelwoodAssetNames.some((name) => typeof assets[name] !== 'string')
+      pixelwoodAssetNames.some((name) => typeof assets[name] !== 'string') ||
+      ['npcFive', 'npcSix', 'npcSeven', 'npcEight'].some(
+        (name) => assets[name] !== undefined && typeof assets[name] !== 'string',
+      )
     ) {
       return null;
     }
@@ -151,7 +158,10 @@ export const loadPrivateAssets = async (
   const manifestUrl = `${baseUrl}assets/private/manifest.json`;
 
   try {
-    const response = await fetcher(manifestUrl, { cache: 'no-store' });
+    const response = await fetcher(manifestUrl, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(1_500),
+    });
 
     if (!response.ok) {
       return null;
