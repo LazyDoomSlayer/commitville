@@ -2,7 +2,7 @@
 
 ## One sentence
 
-Commitville is a living stylized office that quietly tells stories on a shared screen without asking anyone to play it.
+Commitville is a living pixel-art office that quietly tells stories on a shared screen without asking anyone to play it.
 
 ## Experience
 
@@ -58,3 +58,6 @@ The first audience is an office team viewing Commitville on a shared television.
 
 The default presentation is now real low-poly 3D at the owner’s request (ADR 0010).
 The earlier pixel-art views remain available for comparison and recovery.
+
+The 3D renderer preserves the pixel-art direction with orthographic framing,
+low-resolution pixels and banded shading (ADR 0011).

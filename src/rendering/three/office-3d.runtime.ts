@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
   OfficePopulationSystem,
@@ -14,31 +17,48 @@ import { createHumanModel, createMascotModel } from './character-models';
 
 export const createOffice3D = (parent: HTMLElement, onFailure: () => void) => {
   const renderer = new THREE.WebGLRenderer({
-    antialias: true,
+    antialias: false,
     powerPreference: 'high-performance',
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  // RenderPixelatedPass uses half-float scene/normal buffers. Recover to the
+  // legacy view rather than risk an incomplete framebuffer on older GPUs.
+  if (!renderer.extensions.has('EXT_color_buffer_float')) {
+    renderer.dispose();
+    throw new Error('Pixel-art rendering requires float color buffers.');
+  }
+  renderer.setPixelRatio(1);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.BasicShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.25;
+  renderer.toneMappingExposure = 1.1;
   renderer.domElement.classList.add('office-3d');
   renderer.domElement.title = 'Drag to rotate · right-drag to pan · scroll or pinch to zoom';
   parent.append(renderer.domElement);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x172a32);
-  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 160);
+  const viewHeight = 22;
+  const camera = new THREE.OrthographicCamera(-16, 16, 11, -11, 0.1, 160);
+  const composer = new EffectComposer(renderer);
+  const pixelPass = new RenderPixelatedPass(3, scene, camera, {
+    normalEdgeStrength: 0.35,
+    depthEdgeStrength: 0.55,
+  });
+  const outputPass = new OutputPass();
+  composer.addPass(pixelPass);
+  composer.addPass(outputPass);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.09;
   controls.minDistance = 4;
   controls.maxDistance = 70;
+  controls.minZoom = 0.35;
+  controls.maxZoom = 6;
   controls.minPolarAngle = 0.2;
   controls.maxPolarAngle = Math.PI * 0.47;
   controls.screenSpacePanning = false;
-  scene.add(new THREE.HemisphereLight(0xe4f4f2, 0x667468, 2.3));
-  const sunlight = new THREE.DirectionalLight(0xffe7c2, 3.1);
+  scene.add(new THREE.HemisphereLight(0xe4f4f2, 0x667468, 1.5));
+  const sunlight = new THREE.DirectionalLight(0xffe7c2, 2.2);
   sunlight.position.set(5, 22, 10);
   sunlight.castShadow = true;
   sunlight.shadow.mapSize.set(2048, 2048);
@@ -64,23 +84,25 @@ export const createOffice3D = (parent: HTMLElement, onFailure: () => void) => {
   const population = new OfficePopulationSystem();
   const speech = createMascotSpeech();
   let selected: MascotId = 'dnake',
-    following = false,
-    fitDistance = 32;
+    following = false;
   let disposed = false,
     last = performance.now(),
     frame = 0;
   const abort = new AbortController();
   const fit = () => {
     following = false;
-    fitDistance = window.innerWidth / window.innerHeight < 1 ? 56 : 32;
+    camera.zoom = window.innerWidth / window.innerHeight < 1 ? 0.4 : 1;
+    camera.updateProjectionMatrix();
     controls.target.set(12, 0.5, 8.5);
     camera.position
       .copy(controls.target)
-      .add(new THREE.Vector3(19, 24, 27).normalize().multiplyScalar(fitDistance));
+      .add(new THREE.Vector3(19, 24, 27).normalize().multiplyScalar(32));
     controls.update();
   };
   const follow = () => {
     following = true;
+    camera.zoom = 2.2;
+    camera.updateProjectionMatrix();
     const point = mascots[selected].root.position.clone().add(new THREE.Vector3(0, 0.8, 0));
     controls.target.copy(point);
     camera.position.copy(point).add(new THREE.Vector3(6, 7, 8));
@@ -92,9 +114,8 @@ export const createOffice3D = (parent: HTMLElement, onFailure: () => void) => {
       if (following) follow();
     },
     zoom: (steps) => {
-      const offset = camera.position.clone().sub(controls.target);
-      offset.setLength(THREE.MathUtils.clamp(offset.length() * Math.pow(0.82, steps), 4, 70));
-      camera.position.copy(controls.target).add(offset);
+      camera.zoom = THREE.MathUtils.clamp(camera.zoom * Math.pow(1.22, steps), 0.35, 6);
+      camera.updateProjectionMatrix();
       controls.update();
     },
     fit,
@@ -107,7 +128,11 @@ export const createOffice3D = (parent: HTMLElement, onFailure: () => void) => {
     const width = parent.clientWidth,
       height = parent.clientHeight;
     renderer.setSize(width, height);
-    camera.aspect = width / height;
+    const aspect = width / height;
+    camera.left = (-viewHeight * aspect) / 2;
+    camera.right = (viewHeight * aspect) / 2;
+    pixelPass.setPixelSize(Math.max(2, Math.floor(height / 360)));
+    composer.setSize(width, height);
     camera.updateProjectionMatrix();
   };
   window.addEventListener('resize', resize, { signal: abort.signal });
@@ -139,6 +164,9 @@ export const createOffice3D = (parent: HTMLElement, onFailure: () => void) => {
       item.dispose();
     });
     sunlight.shadow.dispose();
+    pixelPass.dispose();
+    outputPass.dispose();
+    composer.dispose();
     renderer.dispose();
     renderer.domElement.remove();
   };
@@ -174,9 +202,9 @@ export const createOffice3D = (parent: HTMLElement, onFailure: () => void) => {
       room.west.visible = camera.position.x > 0;
       ui.update({
         target: selected,
-        zoom: fitDistance / camera.position.distanceTo(controls.target),
-        minimumZoom: fitDistance / 70,
-        maximumZoom: fitDistance / 4,
+        zoom: camera.zoom,
+        minimumZoom: 0.35,
+        maximumZoom: 6,
         following,
         activity: states[selected].activity,
         walking: states[selected].walking,
@@ -205,7 +233,7 @@ export const createOffice3D = (parent: HTMLElement, onFailure: () => void) => {
             : null,
         );
       } else speech.update(null);
-      renderer.render(scene, camera);
+      composer.render();
       frame = requestAnimationFrame(render);
     } catch (error) {
       console.error('3D office rendering failed', error);

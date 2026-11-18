@@ -8,8 +8,8 @@ The public project contains only fictional sample data and generic artwork. Real
 
 Commitville is in its foundation phase. The current app proves the browser runtime, rendering loop, simulation clock, automated checks, and deployment pipeline.
 
-The default office is real low-poly 3D: a perspective camera, solid furniture,
-lighting and shadows, ten articulated coworkers, and three device mascots
+The default office is a pixel-art 3D diorama: an orbiting orthographic camera,
+crisp low-resolution pixels, banded shading, ten articulated coworkers, and three device mascots
 (Dnake, C2-260 and C3 Plus). Seven desks have seats and three are standing desks.
 Workers sit with bent legs and type, walk around the studio and lounge, or take
 coffee breaks. Nearby mascots pause, face each other and exchange speech bubbles.
@@ -20,7 +20,7 @@ controls. A narrow screen starts in mascot follow mode. The previous views remai
 at `?view=angled` and `?view=flat`, with optional purchased art. WebGL failure
 recovers to the angled renderer. The default 3D models need no private assets.
 
-![Real 3D office with coworkers and device mascots](docs/images/3d-office.png)
+![Pixel-art 3D office with coworkers and device mascots](docs/images/3d-office.png)
 
 ## Stack
 

@@ -12,7 +12,7 @@ const requestedView = new URLSearchParams(window.location.search).get('view');
 const view = requestedView === 'flat' ? 'flat' : requestedView === 'angled' ? 'angled' : '3d';
 if (view === '3d') {
   const eyebrow = document.querySelector('.hud__eyebrow');
-  if (eyebrow) eyebrow.textContent = 'Autonomous 3D office';
+  if (eyebrow) eyebrow.textContent = 'Autonomous pixel office';
 }
 const privateAssets = view === '3d' ? null : await loadPrivateAssets();
 if (view === 'flat') {

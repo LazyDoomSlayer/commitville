@@ -37,7 +37,8 @@ workstations have chairs and three are standing desks; work poses match the
 assigned station, while walking always uses the upright gait. The follow
 selector currently tracks the three mascots.
 
-The default office is a real 3D scene with solid models and articulated characters. Dnake, C2-260 and C3 Plus walk without user input.
+The default office is a pixel-art 3D scene with solid models and articulated characters.
+An orthographic camera and pixel render pass keep crisp pixels while orbiting. Dnake, C2-260 and C3 Plus walk without user input.
 
 - Zoom with the +/− buttons, mouse wheel or a two-finger pinch.
 - Choose Dnake, C2-260 or C3 Plus with the selector beside the activity text.

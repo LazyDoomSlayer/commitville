@@ -1,9 +1,14 @@
 import * as THREE from 'three';
 
-const materials = new Map<number, THREE.MeshStandardMaterial>();
+// Four lighting bands keep the shared palette readable on the pixel grid.
+const ramp = new THREE.DataTexture(new Uint8Array([70, 135, 205, 255]), 4, 1, THREE.RedFormat);
+ramp.minFilter = ramp.magFilter = THREE.NearestFilter;
+ramp.generateMipmaps = false;
+ramp.needsUpdate = true;
+const materials = new Map<number, THREE.MeshToonMaterial>();
 export const material = (color: number) => {
   if (!materials.has(color))
-    materials.set(color, new THREE.MeshStandardMaterial({ color, roughness: 0.78 }));
+    materials.set(color, new THREE.MeshToonMaterial({ color, gradientMap: ramp }));
   return materials.get(color)!;
 };
 const cube = new THREE.BoxGeometry(1, 1, 1);
@@ -41,6 +46,8 @@ export const label = (
   ctx.fillText(text, 256, 64);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = texture.magFilter = THREE.NearestFilter;
+  texture.generateMipmaps = false;
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(width, width / 4),
     new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false }),

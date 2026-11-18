@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { PatrolSnapshot } from '../../simulation/characters/office-patrol.system';
 import type { CoworkerSnapshot } from '../../simulation/characters/coworker.system';
 import type { MascotId } from '../../simulation/characters/mascot-roster';
-import { block, label } from './model-parts';
+import { block, label, material } from './model-parts';
 
 const facing = { south: 0, north: Math.PI, east: Math.PI / 2, west: -Math.PI / 2 };
 const joint = (parent: THREE.Object3D, x: number, y: number, z: number) => {
@@ -11,53 +11,90 @@ const joint = (parent: THREE.Object3D, x: number, y: number, z: number) => {
   parent.add(group);
   return group;
 };
+// A stepped silhouette gives heads a pixel-authored outline from every side.
+const headShape = new THREE.Shape();
+const outline = [
+  [-0.375, -0.5],
+  [0.375, -0.5],
+  [0.375, -0.375],
+  [0.5, -0.375],
+  [0.5, 0.375],
+  [0.375, 0.375],
+  [0.375, 0.5],
+  [-0.375, 0.5],
+  [-0.375, 0.375],
+  [-0.5, 0.375],
+  [-0.5, -0.375],
+  [-0.375, -0.375],
+];
+outline.forEach(([x, y], index) =>
+  index === 0 ? headShape.moveTo(x!, y!) : headShape.lineTo(x!, y!),
+);
+headShape.closePath();
+const headGeometry = new THREE.ExtrudeGeometry(headShape, { depth: 1, bevelEnabled: false });
+headGeometry.translate(0, 0, -0.5);
+
 export const createHumanModel = (index: number) => {
   const root = new THREE.Group();
   const skin = [0xd8a07c, 0xb97b58, 0xf0c4a0, 0x8c5943][index % 4]!;
   const shirt = [0x608f94, 0xc68757, 0x7d77a0, 0x799c72, 0xb87171][index % 5]!;
   const hair = [0x25353e, 0x9c5939, 0x36566e, 0xd0a154, 0x53372d][index % 5]!;
   const body = joint(root, 0, 0, 0);
-  block(body, [0.43, 0.5, 0.26], [0, 1.22, 0], shirt);
-  block(body, [0.12, 0.12, 0.12], [0, 1.51, 0], skin);
-  block(body, [0.23, 0.27, 0.22], [0, 1.77, 0], skin, true);
-  block(body, [0.245, 0.17, 0.235], [0, 1.93, -0.035], hair, true);
-  block(body, [0.43, 0.23, 0.18], [0, 1.88, -0.13], hair);
-  for (const x of [-0.085, 0.085]) block(body, [0.035, 0.043, 0.025], [x, 1.79, 0.211], 0x24323a);
-  block(body, [0.065, 0.025, 0.025], [0, 1.68, 0.217], 0xa86d59);
+  block(body, [0.44, 0.4, 0.28], [0, 1.1, 0], shirt);
+  block(body, [0.12, 0.09, 0.12], [0, 1.34, 0], skin);
+  const hairShape = new THREE.Mesh(headGeometry, material(hair));
+  hairShape.scale.set(0.72, 0.72, 0.5);
+  hairShape.position.set(0, 1.7, -0.025);
+  hairShape.castShadow = true;
+  body.add(hairShape);
+  const head = new THREE.Mesh(headGeometry, material(skin));
+  head.scale.set(0.58, 0.5, 0.52);
+  head.position.set(0, 1.58, 0.03);
+  head.castShadow = true;
+  body.add(head);
+  // Layered, stepped silhouettes keep rounded corners on the pixel grid.
+  block(body, [0.12, 0.25, 0.22], [-0.285, 1.79, 0.11], hair);
+  for (let n = 0; n < 3; n++)
+    block(body, [0.14, 0.08, 0.08], [-0.14 + n * 0.14, 1.85 + (n % 2) * 0.06, 0.235], hair);
+  for (const x of [-0.13, 0.13]) {
+    block(body, [0.07, 0.09, 0.025], [x, 1.62, 0.3], 0x25353e);
+    block(body, [0.025, 0.025, 0.01], [x - 0.015, 1.64, 0.318], 0xece4c8);
+  }
+  block(body, [0.08, 0.025, 0.025], [0, 1.48, 0.3], 0xa86d59);
   if (index % 3 === 1)
-    for (const side of [-1, 1]) block(body, [0.06, 0.24, 0.15], [side * 0.2, 1.72, -0.06], hair);
+    for (const side of [-1, 1]) block(body, [0.1, 0.34, 0.22], [side * 0.28, 1.58, -0.11], hair);
   const legs = [-1, 1].map((side) => {
-    const thigh = joint(root, side * 0.115, 0.88, 0);
-    block(thigh, [0.17, 0.4, 0.18], [0, -0.2, 0], 0x354c60);
-    const shin = joint(thigh, 0, -0.4, 0);
-    block(shin, [0.15, 0.4, 0.16], [0, -0.2, 0], 0x354c60);
-    block(shin, [0.19, 0.12, 0.3], [0, -0.39, 0.06], 0x24343d);
+    const thigh = joint(root, side * 0.115, 0.77, 0);
+    block(thigh, [0.17, 0.36, 0.18], [0, -0.18, 0], 0x354c60);
+    const shin = joint(thigh, 0, -0.36, 0);
+    block(shin, [0.15, 0.32, 0.16], [0, -0.16, 0], 0x354c60);
+    block(shin, [0.19, 0.12, 0.3], [0, -0.31, 0.06], 0x24343d);
     return { thigh, shin };
   });
   const arms = [-1, 1].map((side) => {
-    const upper = joint(body, side * 0.285, 1.42, 0);
-    block(upper, [0.16, 0.28, 0.18], [0, -0.14, 0], shirt);
-    const lower = joint(upper, 0, -0.28, 0);
-    block(lower, [0.125, 0.27, 0.13], [0, -0.135, 0], skin);
-    block(lower, [0.14, 0.12, 0.15], [0, -0.28, 0], skin);
+    const upper = joint(body, side * 0.285, 1.25, 0);
+    block(upper, [0.16, 0.2, 0.18], [0, -0.1, 0], shirt);
+    const lower = joint(upper, 0, -0.2, 0);
+    block(lower, [0.125, 0.2, 0.13], [0, -0.1, 0], skin);
+    block(lower, [0.14, 0.12, 0.15], [0, -0.21, 0], skin);
     return { upper, lower };
   });
   return {
     root,
     update(state: CoworkerSnapshot, time: number) {
       const seated = state.workPosture === 'seated';
-      const stride = state.walking ? Math.sin(state.walkingMs / 130) * 0.55 : 0;
+      const stride = state.walking ? Math.sin(Math.floor(state.walkingMs / 100) * 0.8) * 0.55 : 0;
       root.position.set(state.x, 0, state.y);
       root.rotation.y = facing[state.direction];
       body.position.y = seated ? -0.22 : Math.abs(stride) * 0.025;
       legs.forEach(({ thigh, shin }, i) => {
-        thigh.position.y = seated ? 0.66 : 0.88;
-        thigh.rotation.x = seated ? -1.1 : stride * (i ? 1 : -1);
-        shin.rotation.x = seated ? 1.1 : Math.max(0, -stride * (i ? 1 : -1)) * 0.5;
+        thigh.position.y = seated ? 0.66 : 0.77;
+        thigh.rotation.x = seated ? -0.9 : stride * (i ? 1 : -1);
+        shin.rotation.x = seated ? 0.9 : Math.max(0, -stride * (i ? 1 : -1)) * 0.5;
       });
       arms.forEach(({ upper, lower }, i) => {
         upper.rotation.x = state.working
-          ? -0.7 + Math.sin(time / 130 + i) * 0.035
+          ? -0.9 + Math.sin(time / 130 + i) * 0.035
           : stride * (i ? -1 : 1) * 0.8;
         lower.rotation.x = state.working ? -0.8 : 0;
       });
@@ -136,7 +173,7 @@ export const createMascotModel = (id: MascotId) => {
     update(state: PatrolSnapshot, talking: boolean, time: number) {
       root.position.set(state.x, 0, state.y);
       root.rotation.y = facing[state.direction];
-      const stride = state.walking ? Math.sin(state.walkingMs / 135) * 0.5 : 0;
+      const stride = state.walking ? Math.sin(Math.floor(state.walkingMs / 100) * 0.8) * 0.5 : 0;
       body.position.y = state.walking ? Math.abs(stride) * 0.06 : 0;
       legs.forEach((leg, i) => (leg.rotation.x = stride * (i ? 1 : -1)));
       arms.forEach((arm, i) => {

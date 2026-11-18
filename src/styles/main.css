@@ -34,7 +34,7 @@ canvas {
 }
 
 canvas.office-3d {
-  image-rendering: auto;
+  image-rendering: pixelated;
 }
 
 .hud {
