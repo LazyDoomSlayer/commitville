@@ -32,7 +32,9 @@ network access.
 The angled office has ten fictional coworkers in addition to the mascots.
 Six begin at their workstations and four begin wandering. Seeded schedules cycle
 between work, coffee and lounge breaks; the HUD reports working/walking counts.
-The enlarged floor is L-shaped, and Fit office includes both wings. The follow
+The enlarged floor is L-shaped, and Fit office includes both wings. Seven
+workstations have chairs and three are standing desks; work poses match the
+assigned station, while walking always uses the upright gait. The follow
 selector currently tracks the three mascots.
 
 The default office is an angled 2.5D scene. Dnake, C2-260 and C3 Plus walk without user input.

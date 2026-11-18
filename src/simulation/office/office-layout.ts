@@ -9,6 +9,20 @@ export interface OfficeFixture extends GridPoint {
   readonly depth: number;
 }
 
+export const WORKSTATIONS = [
+  { x: 3, y: 3, posture: 'seated' },
+  { x: 7, y: 3, posture: 'standing' },
+  { x: 3, y: 7, posture: 'seated' },
+  { x: 7, y: 7, posture: 'seated' },
+  { x: 15, y: 2, posture: 'standing' },
+  { x: 19, y: 2, posture: 'seated' },
+  { x: 15, y: 6, posture: 'seated' },
+  { x: 19, y: 6, posture: 'seated' },
+  { x: 15, y: 10, posture: 'standing' },
+  { x: 19, y: 10, posture: 'seated' },
+] as const;
+export type WorkPosture = (typeof WORKSTATIONS)[number]['posture'];
+
 // Grid footprints are shared by navigation and rendering so furniture cannot
 // accidentally become walkable when its visual placement changes.
 export const OFFICE_LAYOUT = {
@@ -17,32 +31,21 @@ export const OFFICE_LAYOUT = {
   mainDepth: 12,
   loungeWidth: 14,
   fixtures: [
+    ...WORKSTATIONS.flatMap(
+      (station) =>
+        [
+          { kind: 'desk', x: station.x, y: station.y, width: 2, depth: 1 },
+          ...(station.posture === 'seated'
+            ? [{ kind: 'chair' as const, x: station.x + 1, y: station.y + 1, width: 1, depth: 1 }]
+            : []),
+        ] satisfies OfficeFixture[],
+    ),
     { kind: 'coffee', x: 1, y: 1, width: 2, depth: 1 },
     { kind: 'shelf', x: 6, y: 0, width: 3, depth: 1 },
     { kind: 'plant', x: 12, y: 1, width: 1, depth: 1 },
-    { kind: 'desk', x: 3, y: 3, width: 2, depth: 1 },
-    { kind: 'chair', x: 3, y: 4, width: 1, depth: 1 },
-    { kind: 'desk', x: 7, y: 3, width: 2, depth: 1 },
-    { kind: 'chair', x: 7, y: 4, width: 1, depth: 1 },
-    { kind: 'desk', x: 3, y: 7, width: 2, depth: 1 },
-    { kind: 'chair', x: 3, y: 8, width: 1, depth: 1 },
-    { kind: 'desk', x: 7, y: 7, width: 2, depth: 1 },
-    { kind: 'chair', x: 7, y: 8, width: 1, depth: 1 },
     { kind: 'meeting', x: 10, y: 6, width: 3, depth: 2 },
     { kind: 'sofa', x: 1, y: 10, width: 3, depth: 1 },
     { kind: 'plant', x: 0, y: 7, width: 1, depth: 1 },
-    { kind: 'desk', x: 15, y: 2, width: 2, depth: 1 },
-    { kind: 'chair', x: 15, y: 3, width: 1, depth: 1 },
-    { kind: 'desk', x: 19, y: 2, width: 2, depth: 1 },
-    { kind: 'chair', x: 19, y: 3, width: 1, depth: 1 },
-    { kind: 'desk', x: 15, y: 6, width: 2, depth: 1 },
-    { kind: 'chair', x: 15, y: 7, width: 1, depth: 1 },
-    { kind: 'desk', x: 19, y: 6, width: 2, depth: 1 },
-    { kind: 'chair', x: 19, y: 7, width: 1, depth: 1 },
-    { kind: 'desk', x: 15, y: 10, width: 2, depth: 1 },
-    { kind: 'chair', x: 15, y: 11, width: 1, depth: 1 },
-    { kind: 'desk', x: 19, y: 10, width: 2, depth: 1 },
-    { kind: 'chair', x: 19, y: 11, width: 1, depth: 1 },
     { kind: 'sofa', x: 1, y: 16, width: 4, depth: 1 },
     { kind: 'coffee', x: 9, y: 16, width: 2, depth: 1 },
     { kind: 'plant', x: 12, y: 16, width: 1, depth: 1 },
@@ -59,10 +62,11 @@ export const isOfficeFloor = ({ x, y }: GridPoint): boolean =>
   y < OFFICE_LAYOUT.height &&
   (y < OFFICE_LAYOUT.mainDepth || x < OFFICE_LAYOUT.loungeWidth);
 
-export const isOfficeWalkable = ({ x, y }: GridPoint): boolean =>
+export const isOfficeWalkable = ({ x, y }: GridPoint, allowedSeat?: GridPoint): boolean =>
   isOfficeFloor({ x, y }) &&
   !OFFICE_LAYOUT.fixtures.some(
     (fixture) =>
+      !(fixture.kind === 'chair' && allowedSeat?.x === x && allowedSeat.y === y) &&
       x >= fixture.x &&
       x < fixture.x + fixture.width &&
       y >= fixture.y &&
@@ -74,8 +78,9 @@ export const findOfficePath = (
   start: GridPoint,
   goal: GridPoint,
   occupied: readonly GridPoint[] = [],
+  allowedSeat?: GridPoint,
 ): GridPoint[] => {
-  if (!isOfficeWalkable(start) || !isOfficeWalkable(goal)) return [];
+  if (!isOfficeWalkable(start, allowedSeat) || !isOfficeWalkable(goal, allowedSeat)) return [];
   const key = (point: GridPoint): string => `${point.x},${point.y}`;
   const queue = [start];
   const previous = new Map<string, GridPoint | null>([[key(start), null]]);
@@ -99,7 +104,7 @@ export const findOfficePath = (
     ] as const) {
       const next = { x: current.x + dx, y: current.y + dy };
       if (
-        isOfficeWalkable(next) &&
+        isOfficeWalkable(next, allowedSeat) &&
         !previous.has(key(next)) &&
         !occupied.some((cell) => cell.x === next.x && cell.y === next.y)
       ) {

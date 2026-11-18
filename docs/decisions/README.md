@@ -21,3 +21,4 @@ Use the next available four-digit number. Accepted ADRs are not rewritten to hid
 - [0005 — Shared patrols and cell reservations](0005-shared-patrols-and-cell-reservations.md)
 - [0006 — Opportunistic mascot conversations](0006-opportunistic-mascot-conversations.md)
 - [0007 — Expanded office and fictional coworkers](0007-expanded-office-and-fictional-coworkers.md)
+- [0008 — Seated and standing workstations](0008-seated-and-standing-workstations.md)

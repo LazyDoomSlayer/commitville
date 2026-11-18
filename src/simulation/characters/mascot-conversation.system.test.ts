@@ -70,8 +70,8 @@ describe('mascot conversations', () => {
   it('does not start a chat through an intervening chair or at a distance', () => {
     const chats = new MascotConversationSystem();
     chats.advance(2_000, {
-      dnake: standing(2.5, 4.5),
-      zkteco: standing(4.5, 4.5),
+      dnake: standing(3.5, 4.5),
+      zkteco: standing(5.5, 4.5),
       c3plus: standing(12.5, 10.5),
     });
     expect(chats.participants()).toEqual([]);

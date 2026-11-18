@@ -95,7 +95,10 @@ owns the clamped screen-space speech bubble. See ADR 0006 for encounter timing
 and ownership. `CoworkerSystem` uses seeded work/break routes from the fictional
 roster. The shared L-shaped floor predicate drives both navigation and floor
 rendering; camera extents follow the projected footprint. See ADR 0007 for the
-expanded office and population. See ADR 0004 for the isometric and navigation decisions.
+expanded office and population. `WORKSTATIONS` owns desk positions and work
+postures; coworker assignments and rendered furniture derive from it. Assigned
+seat access is explicit in navigation, while other chairs remain obstacles.
+See ADR 0008 for seating and standing behavior. See ADR 0004 for the isometric and navigation decisions.
 
 ## Configuration
 

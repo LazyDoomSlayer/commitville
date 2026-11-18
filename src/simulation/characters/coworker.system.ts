@@ -1,6 +1,6 @@
 import { OfficePatrolSystem, type PatrolSnapshot } from './office-patrol.system';
 import { COWORKERS } from './coworker-roster';
-import type { GridPoint } from '../office/office-layout';
+import type { GridPoint, WorkPosture } from '../office/office-layout';
 
 const BREAKS = [
   { x: 3, y: 2, activity: 'Getting a coffee' },
@@ -15,11 +15,13 @@ const BREAKS = [
 
 export interface CoworkerSnapshot extends PatrolSnapshot {
   readonly working: boolean;
+  readonly workPosture: WorkPosture | null;
 }
 
 // Each person's route is generated from an injected seed, never global random.
 // Most start at work; four start in the lounge and wander before returning home.
 export class CoworkerSystem extends OfficePatrolSystem {
+  private readonly preferredPosture: WorkPosture;
   constructor(index: number, seed = 260_160) {
     const person = COWORKERS[index];
     if (!person) throw new RangeError('Unknown coworker index.');
@@ -47,6 +49,7 @@ export class CoworkerSystem extends OfficePatrolSystem {
     // Skip a no-op break if a wanderer already spawns at that destination.
     if (stops[0]?.x === start.x && stops[0]?.y === start.y) stops.shift();
     super({
+      ...(person.workPosture === 'seated' ? { allowedSeat: person.home } : {}),
       initialActivityKind: index < 6 ? 'work' : 'break',
       start,
       stops,
@@ -54,6 +57,7 @@ export class CoworkerSystem extends OfficePatrolSystem {
       pauseMs: index < 6 ? 35_000 + index * 5_000 : 500 + (index - 6) * 300,
       activity: index < 6 ? work : 'Getting ready for a wander',
     });
+    this.preferredPosture = person.workPosture;
   }
 
   override advance(elapsedMs: number, occupied: readonly GridPoint[] = []): CoworkerSnapshot {
@@ -64,6 +68,11 @@ export class CoworkerSystem extends OfficePatrolSystem {
   override snapshot(): CoworkerSnapshot {
     const state = super.snapshot();
     const working = !state.walking && state.activityKind === 'work';
-    return { ...state, working, direction: working ? 'north' : state.direction };
+    return {
+      ...state,
+      working,
+      workPosture: working ? this.preferredPosture : null,
+      direction: working ? 'north' : state.direction,
+    };
   }
 }

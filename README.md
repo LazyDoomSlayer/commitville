@@ -34,6 +34,8 @@ The office now has a larger L-shaped footprint, ten desks and ten fictional
 coworkers alongside the three mascots. Some work at their desks while others
 wander through the studio and lounge or take coffee breaks. Their seeded
 schedules alternate work and breaks, and the HUD shows the current activity mix.
+Seven workstations have seats and three have standing desks. Workers use distinct
+seated or standing typing poses, with furniture and keyboards aligned to them.
 
 ## Stack
 

@@ -61,7 +61,7 @@ export class OfficeScene extends Phaser.Scene {
       this.coworkers.push({
         sprite: this.add
           .sprite(0, 0, coworkerTextureKey(index), 'south-0')
-          .setOrigin(0.5, 31 / 32)
+          .setOrigin(0.5, 38 / 40)
           .setScale(2),
         shadow: this.add.ellipse(0, 0, 20, 9, 0x1d3e43, 0.25),
       }),
@@ -117,7 +117,7 @@ export class OfficeScene extends Phaser.Scene {
       const point = projectOfficePoint(person.x, person.y);
       const { sprite, shadow } = this.coworkers[index]!;
       const frame = person.working
-        ? `work-${Math.floor(_time / 300 + index) % 2}`
+        ? `${person.workPosture}-work-${Math.floor(_time / 300 + index) % 2}`
         : coworkerFrame(
             person.direction,
             person.walking ? Math.floor(person.walkingMs / 140) % 4 : 0,

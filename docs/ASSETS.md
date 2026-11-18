@@ -133,8 +133,8 @@ flat preview remains unchanged.
 
 ## Fictional coworkers
 
-`src/rendering/sprites/coworker.texture.ts` draws ten original 20×32 pixel people
+`src/rendering/sprites/coworker.texture.ts` draws ten original 24×40 pixel people
 with distinct shirt, hair and skin palettes. Each has front/back/profile walking
-frames and a small typing motion at work. These sprites are independent of the
+frames and separate standing/seated typing poses, including bent legs for seated work. These sprites are independent of the
 licensed packs and do not depict real employees. The fictional names, tasks and
 home workstations live in `src/simulation/characters/coworker-roster.ts`.

@@ -14,6 +14,7 @@ export interface PatrolSnapshot extends GridPoint {
   readonly activity: string;
 }
 interface PatrolOptions {
+  readonly allowedSeat?: GridPoint;
   readonly initialActivityKind?: 'work' | 'break';
   readonly start: GridPoint;
   readonly stops: readonly PatrolStop[];
@@ -42,10 +43,13 @@ export class OfficePatrolSystem {
 
   constructor(private readonly options: PatrolOptions) {
     if (
-      !isOfficeWalkable(options.start) ||
+      !isOfficeWalkable(options.start, options.allowedSeat) ||
       options.stops.length === 0 ||
       options.stops.some(
-        (stop) => !isOfficeWalkable(stop) || !Number.isFinite(stop.pauseMs) || stop.pauseMs < 0,
+        (stop) =>
+          !isOfficeWalkable(stop, options.allowedSeat) ||
+          !Number.isFinite(stop.pauseMs) ||
+          stop.pauseMs < 0,
       ) ||
       !Number.isFinite(options.speed) ||
       options.speed <= 0 ||
@@ -124,7 +128,7 @@ export class OfficePatrolSystem {
       this.atCellCenter() &&
       (!next || occupied.some((cell) => cell.x === next!.x && cell.y === next!.y))
     ) {
-      this.path = findOfficePath(this.cell, stop, occupied);
+      this.path = findOfficePath(this.cell, stop, occupied, this.options.allowedSeat);
       next = this.path[0];
       if (!next) {
         if (this.cell.x === stop.x && this.cell.y === stop.y) this.arrive();

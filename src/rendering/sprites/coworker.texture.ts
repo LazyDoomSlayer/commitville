@@ -31,12 +31,13 @@ const HAIR = [
 ];
 const SKIN = ['#e3bc99', '#bf8c68', '#a87454', '#edcaaa', '#d6a57c'];
 
-// Original code-drawn people, independent of any licensed character pack.
+// Original code-drawn people. Standing and seated work use separate native
+// silhouettes; the floor anchor stays fixed when someone sits down or gets up.
 export const createCoworkerTextures = (textures: Phaser.Textures.TextureManager): void => {
   for (let index = 0; index < 10; index += 1) {
     const key = coworkerTextureKey(index);
     if (textures.exists(key)) continue;
-    const texture = textures.createCanvas(key, 20 * 4, 32 * 5);
+    const texture = textures.createCanvas(key, 24 * 4, 40 * 6);
     if (!texture) throw new Error('Unable to create a coworker texture.');
     const context = texture.getContext();
     const palette = {
@@ -47,53 +48,70 @@ export const createCoworkerTextures = (textures: Phaser.Textures.TextureManager)
       trousers: '#49596b',
       shoe: '#263540',
     };
-    for (let row = 0; row < 5; row += 1) {
-      const working = row === 4;
+    for (let row = 0; row < 6; row += 1) {
+      const working = row >= 4;
+      const seated = row === 5;
       const direction = working ? 'north' : DIRECTIONS[row]!;
       for (let phase = 0; phase < 4; phase += 1) {
         const rect = (x: number, y: number, width: number, height: number, color: string): void => {
           context.fillStyle = color;
-          context.fillRect(phase * 20 + x, row * 32 + y, width, height);
+          context.fillRect(phase * 24 + x, row * 40 + y, width, height);
         };
         const stride = !working && phase === 1 ? -1 : !working && phase === 3 ? 1 : 0;
         const side = direction === 'east' || direction === 'west';
-        rect(side ? 7 : 6, 3, side ? 7 : 9, 9, palette.outline);
-        rect(side ? 8 : 7, 4, side ? 6 : 7, 7, palette.skin);
-        rect(side ? 7 : 6, 2, side ? 7 : 9, 4, palette.hair);
-        if (direction === 'north') rect(6, 4, 9, 6, palette.hair);
+        const headY = seated ? 10 : 2;
+        rect(side ? 9 : 8, headY + 1, side ? 7 : 9, 9, palette.outline);
+        rect(side ? 10 : 9, headY + 2, side ? 6 : 7, 7, palette.skin);
+        rect(side ? 9 : 8, headY, side ? 7 : 9, 4, palette.hair);
+        if (direction === 'north') rect(8, headY + 2, 9, 6, palette.hair);
         else if (direction === 'south') {
-          rect(8, 7, 1, 1, palette.outline);
-          rect(12, 7, 1, 1, palette.outline);
+          rect(10, headY + 5, 1, 1, palette.outline);
+          rect(14, headY + 5, 1, 1, palette.outline);
         } else {
-          rect(direction === 'east' ? 13 : 7, 7, 1, 1, palette.outline);
-          rect(direction === 'east' ? 7 : 12, 5, 2, 5, palette.hair);
+          rect(direction === 'east' ? 15 : 9, headY + 5, 1, 1, palette.outline);
+          rect(direction === 'east' ? 9 : 14, headY + 3, 2, 5, palette.hair);
         }
-        rect(side ? 7 : 5, 12, side ? 7 : 11, 12, palette.outline);
-        rect(side ? 8 : 6, 12, side ? 5 : 9, 11, palette.shirt);
-        rect(8, 11, 4, 2, palette.skin);
+        const shoulderY = seated ? 21 : 13;
+        rect(side ? 9 : 7, shoulderY, side ? 7 : 11, seated ? 10 : 14, palette.outline);
+        rect(side ? 10 : 8, shoulderY, side ? 5 : 9, seated ? 9 : 13, palette.shirt);
+        rect(10, shoulderY - 1, 4, 2, palette.skin);
         if (working) {
-          rect(4, 14, 2, 5, palette.shirt);
-          rect(15, 14, 2, 5, palette.shirt);
-          rect(3, 13 + (phase % 2), 3, 2, palette.skin);
-          rect(15, 14 - (phase % 2), 3, 2, palette.skin);
+          const handsY = seated ? 21 : 15;
+          // Bent elbows and alternating hands reach forward to the keyboard.
+          rect(6, shoulderY + 1, 2, 5, palette.shirt);
+          rect(17, shoulderY + 1, 2, 5, palette.shirt);
+          rect(6, handsY + (phase % 2), 4, 2, palette.skin);
+          rect(16, handsY + 1 - (phase % 2), 4, 2, palette.skin);
         } else {
           for (const [x, offset] of [
-            [4, stride],
-            [15, -stride],
+            [6, stride],
+            [17, -stride],
           ]) {
-            rect(x!, 14 + offset!, 2, 7, palette.shirt);
-            rect(x!, 21 + offset!, 2, 2, palette.skin);
+            rect(x!, 15 + offset!, 2, 9, palette.shirt);
+            rect(x!, 24 + offset!, 2, 2, palette.skin);
           }
         }
-        for (const [x, offset] of [
-          [7, stride],
-          [12, -stride],
-        ]) {
-          rect(x!, 24, 3, 6, palette.trousers);
-          rect(x! - 1 + offset!, 29 + Math.min(0, offset!), 4, 2, palette.shoe);
+        if (seated) {
+          // Horizontal thighs, a short drop to the feet, and separated knees.
+          rect(8, 30, 4, 3, palette.trousers);
+          rect(14, 30, 4, 3, palette.trousers);
+          rect(7, 32, 3, 5, palette.trousers);
+          rect(16, 32, 3, 5, palette.trousers);
+          rect(6, 36, 5, 2, palette.shoe);
+          rect(16, 36, 5, 2, palette.shoe);
+        } else {
+          for (const [x, offset] of [
+            [9, stride],
+            [14, -stride],
+          ]) {
+            rect(x!, 27, 3, 10, palette.trousers);
+            rect(x! - 1 + offset!, 36 + Math.min(0, offset!), 4, 2, palette.shoe);
+          }
         }
-        const name = working ? `work-${phase}` : coworkerFrame(direction, phase);
-        texture.add(name, 0, phase * 20, row * 32, 20, 32);
+        const name = working
+          ? `${seated ? 'seated' : 'standing'}-work-${phase}`
+          : coworkerFrame(direction, phase);
+        texture.add(name, 0, phase * 24, row * 40, 24, 40);
       }
     }
     texture.refresh();

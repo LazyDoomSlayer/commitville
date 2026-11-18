@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 
 import {
   OFFICE_LAYOUT,
+  WORKSTATIONS,
   isOfficeFloor,
   type OfficeFixture,
 } from '../../simulation/office/office-layout';
@@ -108,15 +109,19 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture): void => {
   );
 
   if (kind === 'desk' || kind === 'meeting') {
+    const standing =
+      kind === 'desk' &&
+      WORKSTATIONS.find((station) => station.x === x && station.y === y)?.posture === 'standing';
+    const surface = kind === 'meeting' ? 27 : standing ? 35 : 23;
     for (const dx of [0.18, width - 0.33]) {
-      for (const dy of [0.18, depth - 0.33]) box(g, x + dx, y + dy, 0.14, 0.14, 23, METAL);
+      for (const dy of [0.18, depth - 0.33]) box(g, x + dx, y + dy, 0.14, 0.14, surface - 4, METAL);
     }
-    box(g, x + 0.05, y + 0.05, width - 0.1, depth - 0.1, 4, WOOD, 23);
+    box(g, x + 0.05, y + 0.05, width - 0.1, depth - 0.1, 4, WOOD, surface - 4);
     if (kind === 'desk') {
-      screen(g, x + 0.63, y + 0.19, 27);
-      box(g, x + 0.65, y + 0.6, 0.72, 0.22, 1, [0xd0d8ce, 0x7d9394, 0x536b72], 27);
-      box(g, x + 1.58, y + 0.42, 0.15, 0.15, 6, [0xf0dab0, 0xdbc59d, 0xb29b7d], 27);
-      box(g, x + 0.19, y + 0.32, 0.25, 0.33, 1, [0x6e9f8d, 0x416656, 0x416656], 27);
+      screen(g, x + 1.14, y + 0.16, surface);
+      box(g, x + 1.15, y + 0.75, 0.7, 0.2, 1, [0xd0d8ce, 0x7d9394, 0x536b72], surface);
+      box(g, x + 0.45, y + 0.55, 0.15, 0.15, 6, [0xf0dab0, 0xdbc59d, 0xb29b7d], surface);
+      box(g, x + 0.2, y + 0.2, 0.25, 0.33, 1, [0x6e9f8d, 0x416656, 0x416656], surface);
     } else {
       screen(g, x + 1.5, y + 0.4, 27);
       box(g, x + 0.5, y + 0.7, 0.55, 0.75, 1, [0xe8e2ca, 0xb9b39f, 0xb9b39f], 27);
@@ -126,7 +131,8 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture): void => {
     box(g, x + 0.26, y + 0.22, 0.48, 0.48, 4, METAL);
     box(g, x + 0.43, y + 0.38, 0.15, 0.15, 12, METAL);
     box(g, x + 0.13, y + 0.1, 0.74, 0.7, 4, [0x8aa49c, 0x536f70, 0x3e565f], 12);
-    box(g, x + 0.13, y + 0.65, 0.74, 0.15, 15, [0x8aa49c, 0x536f70, 0x3e565f], 16);
+    const back = scene.add.graphics().setDepth(g.depth + 0.5);
+    box(back, x + 0.13, y + 0.65, 0.74, 0.15, 15, [0x8aa49c, 0x536f70, 0x3e565f], 16);
   } else if (kind === 'coffee') {
     box(g, x + 0.05, y + 0.05, width - 0.1, 0.9, 26, [0xe3dcc3, 0xb5b59e, 0x909c8c]);
     box(g, x, y, width, 1, 3, WOOD, 26);
