@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { createStaticArt, cacheStaticArt } from './static-art-cache.renderer';
 
 import {
   OFFICE_LAYOUT,
@@ -95,7 +96,22 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture, compactDesks: 
   const { x, y, width, depth, kind } = fixture;
   // Sort at the footprint's center: using its far corner would incorrectly
   // hide Dnake when he stands just in front of a wide meeting table.
-  const g = scene.add.graphics().setDepth((x + y + (width + depth) / 2) * 100);
+  const corners = [
+    projectOfficePoint(x, y),
+    projectOfficePoint(x + width, y),
+    projectOfficePoint(x, y + depth),
+    projectOfficePoint(x + width, y + depth),
+  ];
+  const left = Math.min(...corners.map((point) => point.x)) - 20;
+  const top = Math.min(...corners.map((point) => point.y)) - 90;
+  const bounds = {
+    left,
+    top,
+    width: Math.max(...corners.map((point) => point.x)) - left + 20,
+    height: Math.max(...corners.map((point) => point.y)) - top + 20,
+  };
+  const key = `office-${kind}-${x}-${y}-${compactDesks ? 'compact' : 'standard'}`;
+  const g = createStaticArt(scene, bounds, (x + y + (width + depth) / 2) * 100);
   polygon(
     g,
     [
@@ -133,8 +149,9 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture, compactDesks: 
     box(g, x + 0.43, y + 0.38, 0.15, 0.15, 12, METAL);
     box(g, x + 0.13, y + 0.1, 0.74, 0.7, 4, [0x8aa49c, 0x536f70, 0x3e565f], 12);
     // A low back supports the seated torso without masking the native NPC head.
-    const back = scene.add.graphics().setDepth(g.depth + 0.5);
+    const back = createStaticArt(scene, bounds, g.depth + 0.5);
     box(back, x + 0.13, y + 0.65, 0.74, 0.15, 6, [0x8aa49c, 0x536f70, 0x3e565f], 16);
+    cacheStaticArt(scene, back, bounds, `${key}-back`);
   } else if (kind === 'coffee') {
     box(g, x + 0.05, y + 0.05, width - 0.1, 0.9, 26, [0xe3dcc3, 0xb5b59e, 0x909c8c]);
     box(g, x, y, width, 1, 3, WOOD, 26);
@@ -184,11 +201,18 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture, compactDesks: 
       }
     }
   }
+  cacheStaticArt(scene, g, bounds, key);
 };
 
 export const drawIsometricOffice = (scene: Phaser.Scene, compactDesks = false): void => {
   const { width, height } = OFFICE_LAYOUT;
-  const floor = scene.add.graphics().setDepth(-10_000);
+  const bounds = {
+    left: OFFICE_VIEW.left,
+    top: OFFICE_VIEW.top,
+    width: OFFICE_VIEW.right - OFFICE_VIEW.left,
+    height: OFFICE_VIEW.bottom - OFFICE_VIEW.top,
+  };
+  const floor = createStaticArt(scene, bounds, -10_000);
   box(floor, 0, 0, width, OFFICE_LAYOUT.mainDepth, 9, [0x89a79e, 0x405e62, 0x304b54], -9);
   box(
     floor,
@@ -239,7 +263,8 @@ export const drawIsometricOffice = (scene: Phaser.Scene, compactDesks = false): 
     0x5e7e7d,
   );
 
-  const walls = scene.add.graphics().setDepth(-9_000);
+  cacheStaticArt(scene, floor, bounds, 'office-floor');
+  const walls = createStaticArt(scene, bounds, -9_000);
   polygon(
     walls,
     [
@@ -286,6 +311,7 @@ export const drawIsometricOffice = (scene: Phaser.Scene, compactDesks = false): 
     walls.lineStyle(3, 0xe1dfc8);
     walls.lineBetween((a.x + b.x) / 2, (a.y + b.y) / 2, (c.x + d.x) / 2, (c.y + d.y) / 2);
   }
+  cacheStaticArt(scene, walls, bounds, 'office-walls');
   const sign = projectOfficePoint(0, 4.8, 47);
   scene.add
     .text(sign.x, sign.y, 'COMMITVILLE', {

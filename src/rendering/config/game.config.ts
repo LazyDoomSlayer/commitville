@@ -4,16 +4,18 @@ import {
   PRIVATE_ASSETS_REGISTRY_KEY,
   type PrivateAssetsManifest,
 } from '../../services/assets/private-assets.service';
+import type { OfficeRenderer } from './renderer-capability.config';
 import { FlatOfficeScene } from '../scenes/flat-office.scene';
 import { OfficeScene } from '../scenes/office.scene';
 
 export const createGameConfig = (
-  parent: string,
+  parent: string | HTMLElement,
   view: 'angled' | 'flat' = 'angled',
   privateAssets: PrivateAssetsManifest | null = null,
   piPreview = false,
+  renderer: OfficeRenderer = 'webgl',
 ): Phaser.Types.Core.GameConfig => ({
-  type: piPreview ? Phaser.CANVAS : Phaser.AUTO,
+  type: piPreview || renderer === 'canvas' ? Phaser.CANVAS : Phaser.WEBGL,
   ...(piPreview ? { fps: { target: 10, limit: 10 } } : {}),
   parent,
   backgroundColor: '#172a32',

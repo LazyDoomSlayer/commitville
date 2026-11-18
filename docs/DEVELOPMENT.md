@@ -61,6 +61,23 @@ matching the observed Pi 3 presentation. The regular URL keeps its normal frame
 rate and automatic renderer selection. This mode approximates frame pacing; it
 does not emulate the Pi's CPU, memory, graphics driver or browser startup time.
 
+## Renderer compatibility
+
+The normal URL probes WebGL framebuffer rendering and selects Canvas when that
+probe fails. WebGL startup failures, first-frame GL errors and context loss
+trigger a reload into Canvas; the ambient routine starts again. Other URL
+parameters survive recovery. Static office art is cached as textures on both
+renderers, preserving the angled pixel-art view and furniture depth ordering.
+
+Use `/?renderer=canvas` for uncapped Canvas rendering, or `/?renderer=webgl` to
+bypass the capability probe for diagnostics. Forced WebGL still recovers into
+Canvas after failure. Inspect `data-renderer` on `#game` to see the selected
+backend. The Pi preview profile takes precedence over the renderer override.
+
+Local browser checks establish fallback behavior and layout, not Pi performance.
+Measure the connected kiosk before choosing a production frame-rate target.
+See ADR 0011 for recovery and caching trade-offs.
+
 ## Run with licensed local art
 
 The angled office uses the eight purchased Pixelwood NPC designs when available

@@ -1,7 +1,5 @@
-import Phaser from 'phaser';
-
 import { loadPrivateAssets } from './services/assets/private-assets.service';
-import { createGameConfig } from './rendering/config/game.config';
+import { createCompatibleGame } from './rendering/config/compatible-game.runtime';
 import { WorldClock } from './simulation/time/world-clock';
 import './styles/main.css';
 
@@ -49,13 +47,20 @@ const updateClock = (): void => {
 clockElement.textContent = worldClock.format(worldClock.snapshot());
 
 const clockTimer = window.setInterval(updateClock, 1_000);
-const game = new Phaser.Game(createGameConfig('game', view, privateAssets, piPreview));
+const requestedRenderer = parameters.get('renderer');
+const runtime = createCompatibleGame(
+  document.querySelector<HTMLElement>('#game')!,
+  view,
+  privateAssets,
+  piPreview,
+  requestedRenderer === 'canvas' || requestedRenderer === 'webgl' ? requestedRenderer : 'auto',
+);
 
 window.addEventListener(
   'pagehide',
   () => {
     window.clearInterval(clockTimer);
-    game.destroy(true);
+    runtime.destroy();
   },
   { once: true },
 );
