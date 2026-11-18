@@ -14,16 +14,17 @@ lounge. Four facing directions and stepping frames reflect the route. Zoom,
 pan, fit the room or follow Dnake with the camera controls. A narrow screen starts
 in follow mode so the character stays readable.
 
-C2-260, a broad charcoal mascot based on a ZKTeco controller, joins Dnake with
-its own four-direction animation and patrol. Select either mascot beside the
-activity text to inspect its routine or follow it. Both avoid furniture and use
-cell reservations to avoid walking through one another.
+The office also includes C2-260, a broad charcoal controller mascot, and C3 Plus,
+a taller exposed-board mascot with a coin cell, relays and side terminals. All
+three have their own four-direction animation and patrol, avoid furniture and use
+cell reservations to avoid walking through one another. Select a mascot beside
+the activity text to inspect its routine or follow it.
 
 The earlier flat preview is still available at `?view=flat`, including optional
 licensed art. The default angled room uses original code-drawn geometry and needs
 no private files.
 
-![Dnake in the angled office](docs/images/angled-office.png)
+![Three mascots in the angled office](docs/images/angled-office.png)
 
 ## Stack
 

@@ -1,21 +1,28 @@
 import Phaser from 'phaser';
 
 import {
+  MASCOT_IDS,
   OfficeMascotsSystem,
   type MascotId,
 } from '../../simulation/characters/office-mascots.system';
+import type { PatrolDirection } from '../../simulation/characters/office-patrol.system';
 import { bindOfficeControls } from '../../ui/office-camera';
 import { drawIsometricOffice, projectOfficePoint } from '../office/isometric-office.renderer';
+import { createC3PlusTexture, C3_PLUS_TEXTURE_KEY, c3PlusFrame } from '../sprites/c3-plus.texture';
 import { createDnakeTexture, DNAKE_TEXTURE_KEY, dnakeFrame } from '../sprites/dnake.texture';
 import { createZktecoTexture, ZKTECO_TEXTURE_KEY, zktecoFrame } from '../sprites/zkteco.texture';
 
 export class OfficeScene extends Phaser.Scene {
   private readonly mascots = new OfficeMascotsSystem();
   private selectedMascot: MascotId = 'dnake';
-  private dnake!: Phaser.GameObjects.Sprite;
-  private shadow!: Phaser.GameObjects.Ellipse;
-  private zkteco!: Phaser.GameObjects.Sprite;
-  private zktecoShadow!: Phaser.GameObjects.Ellipse;
+  private readonly visuals = new Map<
+    MascotId,
+    {
+      sprite: Phaser.GameObjects.Sprite;
+      shadow: Phaser.GameObjects.Ellipse;
+      frame: (direction: PatrolDirection, phase: number) => string;
+    }
+  >();
   private controls: ReturnType<typeof bindOfficeControls> | undefined;
   private fitZoom = 1;
   private following = false;
@@ -29,19 +36,12 @@ export class OfficeScene extends Phaser.Scene {
   create(): void {
     createDnakeTexture(this.textures);
     createZktecoTexture(this.textures);
+    createC3PlusTexture(this.textures);
     this.cameras.main.setBackgroundColor('#172a32');
     drawIsometricOffice(this);
-    this.shadow = this.add.ellipse(0, 0, 27, 11, 0x1d3e43, 0.3);
-    this.dnake = this.add
-      .sprite(0, 0, DNAKE_TEXTURE_KEY, dnakeFrame('south'))
-      .setOrigin(0.5, 0.95)
-      .setScale(2);
-
-    this.zktecoShadow = this.add.ellipse(0, 0, 40, 13, 0x1d3e43, 0.3);
-    this.zkteco = this.add
-      .sprite(0, 0, ZKTECO_TEXTURE_KEY, zktecoFrame('south'))
-      .setOrigin(0.5, 34 / 36)
-      .setScale(2);
+    this.addMascot('dnake', DNAKE_TEXTURE_KEY, dnakeFrame, 0.95, 27);
+    this.addMascot('zkteco', ZKTECO_TEXTURE_KEY, zktecoFrame, 34 / 36, 40);
+    this.addMascot('c3plus', C3_PLUS_TEXTURE_KEY, c3PlusFrame, 46 / 48, 33);
 
     this.controls = bindOfficeControls({
       select: (id) => {
@@ -70,14 +70,12 @@ export class OfficeScene extends Phaser.Scene {
     // A background-tab resume pauses the ambient routine instead of racing
     // through minutes of movement. The domain consumes fixed 50 ms steps.
     const states = this.mascots.advance(Math.min(delta, 250));
-    for (const id of ['dnake', 'zkteco'] as const) {
+    for (const id of MASCOT_IDS) {
       const state = states[id];
       const position = projectOfficePoint(state.x, state.y);
       const depth = (state.x + state.y) * 100;
       const phase = state.walking ? Math.floor(state.walkingMs / 140) % 4 : 0;
-      const sprite = id === 'dnake' ? this.dnake : this.zkteco;
-      const shadow = id === 'dnake' ? this.shadow : this.zktecoShadow;
-      const frame = id === 'dnake' ? dnakeFrame : zktecoFrame;
+      const { sprite, shadow, frame } = this.visuals.get(id)!;
       sprite
         .setPosition(position.x, position.y)
         .setDepth(depth)
@@ -87,6 +85,20 @@ export class OfficeScene extends Phaser.Scene {
         this.cameras.main.centerOn(position.x, position.y - 25);
     }
     this.updateControls();
+  }
+
+  private addMascot(
+    id: MascotId,
+    texture: string,
+    frame: (direction: PatrolDirection, phase?: number) => string,
+    originY: number,
+    shadowWidth: number,
+  ): void {
+    this.visuals.set(id, {
+      sprite: this.add.sprite(0, 0, texture, frame('south')).setOrigin(0.5, originY).setScale(2),
+      shadow: this.add.ellipse(0, 0, shadowWidth, 12, 0x1d3e43, 0.3),
+      frame,
+    });
   }
 
   private readonly onResize = (): void => this.resizeCamera(false);

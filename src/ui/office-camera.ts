@@ -1,4 +1,8 @@
-import { MASCOT_NAMES, type MascotId } from '../simulation/characters/office-mascots.system';
+import {
+  MASCOT_IDS,
+  MASCOT_NAMES,
+  type MascotId,
+} from '../simulation/characters/office-mascots.system';
 
 export interface OfficeCameraActions {
   select: (id: MascotId) => void;
@@ -30,8 +34,8 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
   mascotSelect?.addEventListener(
     'change',
     () => {
-      if (mascotSelect.value === 'dnake' || mascotSelect.value === 'zkteco')
-        actions.select(mascotSelect.value);
+      const id = MASCOT_IDS.find((id) => id === mascotSelect.value);
+      if (id) actions.select(id);
     },
     options,
   );

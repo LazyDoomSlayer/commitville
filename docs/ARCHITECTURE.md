@@ -83,8 +83,11 @@ Phaser visual projection + DOM HUD
 
 A fixed step keeps navigation reproducible as frame timing varies. Rendering
 caps catch-up after background pauses. `OfficePatrolSystem` owns one routine;
-`OfficeMascotsSystem` coordinates Dnake and C2-260 with cell reservations. See
-ADR 0005 for deterministic scheduling and shared-path behavior. Camera changes and resizing do not reset
+`OfficeMascotsSystem` coordinates Dnake, C2-260 and C3 Plus with cell reservations. See
+ADR 0005 for deterministic scheduling and shared-path behavior. The current
+roster advances in a stable order and reserves against every other mascot's
+current segment; the three routes are verified together for separation and
+progress through all destinations. Camera changes and resizing do not reset
 the simulation. See ADR 0004 for the isometric and navigation decisions.
 
 ## Configuration

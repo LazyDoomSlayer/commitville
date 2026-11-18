@@ -114,3 +114,19 @@ not a live device-health indicator.
 C2-260 roams alongside Dnake in the angled office. Use the mascot selector beside
 the activity text to choose which character the camera follows. The earlier flat
 preview retains only Dnake.
+
+## ZKTeco C3 Plus mascot
+
+`src/rendering/sprites/c3-plus.texture.ts` owns an original 32×48 pixel atlas with
+four directions, four poses per direction and ten colors. Based on owner-supplied
+photos, it keeps the tall exposed PCB, deep upper cover, silver coin cell, side
+terminal strips, Ethernet jack, relays and paired lower capacitors. Small invented
+eyes and a smile sit on the cover; no display is added to the screenless board.
+Rear frames show abstract solder pads and traces, while profiles show the thin
+board and raised components.
+
+The reference photographs, MAC/serial labels, QR codes and actual circuit wiring
+are not shipped. The artwork uses solid native pixels and simplified fictional
+traces, independently of the licensed packs. C3 Plus joins Dnake and C2-260 in
+the angled office with its own patrol and selectable follow camera. The earlier
+flat preview remains unchanged.
