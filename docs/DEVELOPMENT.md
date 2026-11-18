@@ -24,6 +24,11 @@ Vite listens on all interfaces. This is intentional: it allows testing the devel
 
 ## Camera and view controls
 
+Nearby mascots automatically stop, face each other and chat in pairs or as a
+three-person group. Speech changes every three seconds, then they resume their
+patrols. Cooldowns prevent repeated stops. These encounters need no controls or
+network access.
+
 The default office is an angled 2.5D scene. Dnake, C2-260 and C3 Plus walk without user input.
 
 - Zoom with the +/− buttons, mouse wheel or a two-finger pinch.

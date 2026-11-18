@@ -19,3 +19,4 @@ Use the next available four-digit number. Accepted ADRs are not rewritten to hid
 
 - [0004 — Isometric office and autonomous navigation](0004-isometric-office-and-autonomous-navigation.md)
 - [0005 — Shared patrols and cell reservations](0005-shared-patrols-and-cell-reservations.md)
+- [0006 — Opportunistic mascot conversations](0006-opportunistic-mascot-conversations.md)

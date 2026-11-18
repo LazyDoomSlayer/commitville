@@ -20,6 +20,10 @@ three have their own four-direction animation and patrol, avoid furniture and us
 cell reservations to avoid walking through one another. Select a mascot beside
 the activity text to inspect its routine or follow it.
 
+When friends meet on the floor, they pause, face one another and exchange speech
+bubbles. A nearby third mascot can join in. After the chat they resume their
+routes, with a cooldown between encounters.
+
 The earlier flat preview is still available at `?view=flat`, including optional
 licensed art. The default angled room uses original code-drawn geometry and needs
 no private files.

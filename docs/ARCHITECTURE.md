@@ -88,7 +88,11 @@ ADR 0005 for deterministic scheduling and shared-path behavior. The current
 roster advances in a stable order and reserves against every other mascot's
 current segment; the three routes are verified together for separation and
 progress through all destinations. Camera changes and resizing do not reset
-the simulation. See ADR 0004 for the isometric and navigation decisions.
+the simulation. `MascotConversationSystem` owns proximity encounters and dialogue;
+the patrol coordinator pauses participants while preserving their routes and
+reserved cells. Social snapshots expose facing, idle and speech state. The UI
+owns the clamped screen-space speech bubble. See ADR 0006 for encounter timing
+and ownership. See ADR 0004 for the isometric and navigation decisions.
 
 ## Configuration
 

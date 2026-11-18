@@ -18,6 +18,7 @@ export interface OfficeControlState {
   following: boolean;
   activity: string;
   walking: boolean;
+  talking: boolean;
 }
 
 export const bindOfficeControls = (actions: OfficeCameraActions) => {
@@ -75,6 +76,7 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
         previous.following === state.following &&
         previous.activity === state.activity &&
         previous.walking === state.walking &&
+        previous.talking === state.talking &&
         previous.target === state.target
       )
         return;
@@ -90,7 +92,12 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
       follow?.setAttribute('aria-pressed', String(state.following));
       if (activity && activity.textContent !== state.activity)
         activity.textContent = state.activity;
-      if (status) status.textContent = state.walking ? 'On rounds' : 'Taking a moment';
+      if (status)
+        status.textContent = state.talking
+          ? 'Chatting'
+          : state.walking
+            ? 'On rounds'
+            : 'Taking a moment';
     },
     destroy: (): void => controller.abort(),
   };

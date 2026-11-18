@@ -1,15 +1,11 @@
+import { MascotConversationSystem } from './mascot-conversation.system';
+import { MASCOT_IDS } from './mascot-roster';
 import { C3PlusWalkSystem } from './c3-plus-walk.system';
 import { DnakeWalkSystem } from './dnake-walk.system';
 import { PATROL_STEP_MS } from './office-patrol.system';
 import { ZktecoWalkSystem } from './zkteco-walk.system';
 
-export const MASCOT_IDS = ['dnake', 'zkteco', 'c3plus'] as const;
-export type MascotId = (typeof MASCOT_IDS)[number];
-export const MASCOT_NAMES: Record<MascotId, string> = {
-  dnake: 'Dnake',
-  zkteco: 'C2-260',
-  c3plus: 'C3 Plus',
-};
+export { MASCOT_IDS, MASCOT_NAMES, type MascotId } from './mascot-roster';
 
 export class OfficeMascotsSystem {
   private readonly patrols = {
@@ -18,15 +14,19 @@ export class OfficeMascotsSystem {
     c3plus: new C3PlusWalkSystem(),
   };
   private remainderMs = 0;
+  private readonly conversations = new MascotConversationSystem();
 
   advance(elapsedMs: number): ReturnType<OfficeMascotsSystem['snapshot']> {
     if (!Number.isFinite(elapsedMs) || elapsedMs < 0)
       throw new RangeError('Elapsed time must be a non-negative finite number.');
     this.remainderMs += elapsedMs;
     while (this.remainderMs >= PATROL_STEP_MS) {
+      this.conversations.advance(PATROL_STEP_MS, this.patrolSnapshot());
+      const chatting = this.conversations.participants();
       // Stable priority plus current/next-cell reservations avoids walking
       // through one another. A blocked patrol replans from a cell center.
       for (const id of MASCOT_IDS) {
+        if (chatting.includes(id)) continue;
         const occupied = MASCOT_IDS.filter((other) => other !== id).flatMap((other) =>
           this.patrols[other].reservedCells(),
         );
@@ -38,6 +38,15 @@ export class OfficeMascotsSystem {
   }
 
   snapshot() {
+    const positions = this.patrolSnapshot();
+    return {
+      dnake: this.conversations.project('dnake', positions),
+      zkteco: this.conversations.project('zkteco', positions),
+      c3plus: this.conversations.project('c3plus', positions),
+    };
+  }
+
+  private patrolSnapshot() {
     return {
       dnake: this.patrols.dnake.snapshot(),
       zkteco: this.patrols.zkteco.snapshot(),

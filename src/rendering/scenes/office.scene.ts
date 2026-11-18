@@ -2,10 +2,12 @@ import Phaser from 'phaser';
 
 import {
   MASCOT_IDS,
+  MASCOT_NAMES,
   OfficeMascotsSystem,
   type MascotId,
 } from '../../simulation/characters/office-mascots.system';
 import type { PatrolDirection } from '../../simulation/characters/office-patrol.system';
+import { createMascotSpeech } from '../../ui/mascot-speech';
 import { bindOfficeControls } from '../../ui/office-camera';
 import { drawIsometricOffice, projectOfficePoint } from '../office/isometric-office.renderer';
 import { createC3PlusTexture, C3_PLUS_TEXTURE_KEY, c3PlusFrame } from '../sprites/c3-plus.texture';
@@ -24,6 +26,7 @@ export class OfficeScene extends Phaser.Scene {
     }
   >();
   private controls: ReturnType<typeof bindOfficeControls> | undefined;
+  private speech: ReturnType<typeof createMascotSpeech> | undefined;
   private fitZoom = 1;
   private following = false;
   private dragLast: { x: number; y: number } | undefined;
@@ -43,6 +46,7 @@ export class OfficeScene extends Phaser.Scene {
     this.addMascot('zkteco', ZKTECO_TEXTURE_KEY, zktecoFrame, 34 / 36, 40);
     this.addMascot('c3plus', C3_PLUS_TEXTURE_KEY, c3PlusFrame, 46 / 48, 33);
 
+    this.speech = createMascotSpeech();
     this.controls = bindOfficeControls({
       select: (id) => {
         this.selectedMascot = id;
@@ -62,6 +66,7 @@ export class OfficeScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off('resize', this.onResize, this);
       this.controls?.destroy();
+      this.speech?.destroy();
     });
     this.update(0, 0);
   }
@@ -84,6 +89,26 @@ export class OfficeScene extends Phaser.Scene {
       if (this.following && id === this.selectedMascot)
         this.cameras.main.centerOn(position.x, position.y - 25);
     }
+    const speaker = MASCOT_IDS.find((id) => states[id].speech !== null);
+    if (speaker) {
+      const camera = this.cameras.main;
+      const sprite = this.visuals.get(speaker)!.sprite;
+      const centerX = camera.scrollX + camera.width / 2;
+      const centerY = camera.scrollY + camera.height / 2;
+      this.speech?.update({
+        name: MASCOT_NAMES[speaker],
+        text: states[speaker].speech!,
+        x: camera.x + camera.width / 2 + (sprite.x - centerX) * camera.zoom,
+        headY:
+          camera.y +
+          camera.height / 2 +
+          (sprite.y - sprite.displayHeight * sprite.originY - centerY) * camera.zoom,
+        left: camera.x,
+        top: camera.y,
+        width: camera.width,
+        bottom: camera.y + camera.height,
+      });
+    } else this.speech?.update(null);
     this.updateControls();
   }
 
@@ -205,6 +230,7 @@ export class OfficeScene extends Phaser.Scene {
       target: this.selectedMascot,
       activity: state.activity,
       walking: state.walking,
+      talking: state.talking,
     });
   }
 }

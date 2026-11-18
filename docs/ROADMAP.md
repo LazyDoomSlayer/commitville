@@ -26,6 +26,9 @@ Success means a viewer can watch one character complete a recognizable day witho
 
 ## 2. A small team
 
+The device mascots now have proximity conversations, turn-taking and speech
+bubbles. Human teams, relationships and deeper workday behavior remain ahead.
+
 - Five fictional characters with distinct roles and traits
 - Shared tasks and pair interactions
 - Conversation bubbles

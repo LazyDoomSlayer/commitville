@@ -266,3 +266,44 @@ canvas {
     font-size: 9px;
   }
 }
+
+.mascot-speech {
+  position: fixed;
+  z-index: 3;
+  transform: translate(-50%, -100%);
+  padding: 12px 15px;
+  border: 2px solid #718c82;
+  border-radius: 8px;
+  color: #263d42;
+  background: #ecebd8;
+  box-shadow: 3px 4px 0 rgb(10 27 33 / 24%);
+  pointer-events: none;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.mascot-speech strong,
+.mascot-speech span {
+  display: block;
+}
+
+.mascot-speech strong {
+  margin-bottom: 5px;
+  color: #506d61;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mascot-speech::after {
+  content: '';
+  position: absolute;
+  left: var(--speech-tail, 50%);
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  border-right: 2px solid #718c82;
+  border-bottom: 2px solid #718c82;
+  background: #ecebd8;
+}
