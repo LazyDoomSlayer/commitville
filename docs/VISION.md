@@ -2,7 +2,7 @@
 
 ## One sentence
 
-Commitville is a living pixel-art office that quietly tells stories on a shared screen without asking anyone to play it.
+Commitville is a living stylized office that quietly tells stories on a shared screen without asking anyone to play it.
 
 ## Experience
 
@@ -28,7 +28,7 @@ Prefer small interacting systems over long scripted sequences. Coffee, energy, t
 
 ### Readable at television distance
 
-Important state must survive a 1080p television, several meters of distance, and a room with changing light. Pixel art, text, contrast, and pacing must be designed for that environment.
+Important state must survive a 1080p television, several meters of distance, and a room with changing light. Character silhouettes, text, contrast, and pacing must be designed for that environment.
 
 ### Local-first resilience
 
@@ -52,6 +52,9 @@ The first audience is an office team viewing Commitville on a shared television.
 - Competitive scoring or monetization
 - Real-time multiplayer
 - A server requirement
-- Photorealism or 3D rendering
+- Photorealism
 - Employee monitoring or real productivity metrics
 - Automatic ingestion of private workplace data
+
+The default presentation is now real low-poly 3D at the owner’s request (ADR 0010).
+The earlier pixel-art views remain available for comparison and recovery.

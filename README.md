@@ -1,6 +1,6 @@
 # Commitville
 
-Commitville is an autonomous pixel-art office simulation designed to run continuously on a shared display. It is not a game that waits for a player: its characters follow schedules, satisfy needs, collaborate, get distracted, and react to office events on their own.
+Commitville is an autonomous stylized office simulation designed to run continuously on a shared display. It is not a game that waits for a player: its characters follow schedules, satisfy needs, collaborate, get distracted, and react to office events on their own.
 
 The public project contains only fictional sample data and generic artwork. Real people, private company information, and organization-specific configuration do not belong in this repository.
 
@@ -8,39 +8,25 @@ The public project contains only fictional sample data and generic artwork. Real
 
 Commitville is in its foundation phase. The current app proves the browser runtime, rendering loop, simulation clock, automated checks, and deployment pipeline.
 
-Dnake, the intercom mascot, walks autonomously around an angled 2.5D office,
-avoiding furniture and pausing at the coffee station, desks, meeting area and
-lounge. Four facing directions and stepping frames reflect the route. Zoom,
-pan, fit the room or follow Dnake with the camera controls. A narrow screen starts
-in follow mode so the character stays readable.
+The default office is real low-poly 3D: a perspective camera, solid furniture,
+lighting and shadows, ten articulated coworkers, and three device mascots
+(Dnake, C2-260 and C3 Plus). Seven desks have seats and three are standing desks.
+Workers sit with bent legs and type, walk around the studio and lounge, or take
+coffee breaks. Nearby mascots pause, face each other and exchange speech bubbles.
+All routes, work schedules and conversations remain autonomous.
 
-The office also includes C2-260, a broad charcoal controller mascot, and C3 Plus,
-a taller exposed-board mascot with a coin cell, relays and side terminals. All
-three have their own four-direction animation and patrol, avoid furniture and use
-cell reservations to avoid walking through one another. Select a mascot beside
-the activity text to inspect its routine or follow it.
+Drag to rotate, right-drag to pan, scroll/pinch to zoom, or use the fit and follow
+controls. A narrow screen starts in mascot follow mode. The previous views remain
+at `?view=angled` and `?view=flat`, with optional purchased art. WebGL failure
+recovers to the angled renderer. The default 3D models need no private assets.
 
-When friends meet on the floor, they pause, face one another and exchange speech
-bubbles. A nearby third mascot can join in. After the chat they resume their
-routes, with a cooldown between encounters.
-
-The earlier flat preview is still available at `?view=flat`, including optional
-licensed art. The default angled room uses original code-drawn geometry and needs
-no private files.
-
-![Ten coworkers and three mascots in the expanded office](docs/images/angled-office.png)
-
-The office now has a larger L-shaped footprint, ten desks and ten fictional
-coworkers alongside the three mascots. Some work at their desks while others
-wander through the studio and lounge or take coffee breaks. Their seeded
-schedules alternate work and breaks, and the HUD shows the current activity mix.
-Seven workstations have seats and three have standing desks. Workers use distinct
-seated or standing typing poses, with furniture and keyboards aligned to them.
+![Real 3D office with coworkers and device mascots](docs/images/3d-office.png)
 
 ## Stack
 
 - TypeScript for application and simulation logic
-- Phaser for 2D rendering and animation
+- Three.js for 3D models, lighting and camera controls
+- Phaser for legacy 2D views and recovery
 - Vite for development and production builds
 - Vitest for deterministic simulation tests
 - ESLint and Prettier for automated code quality

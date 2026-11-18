@@ -37,11 +37,12 @@ workstations have chairs and three are standing desks; work poses match the
 assigned station, while walking always uses the upright gait. The follow
 selector currently tracks the three mascots.
 
-The default office is an angled 2.5D scene. Dnake, C2-260 and C3 Plus walk without user input.
+The default office is a real 3D scene with solid models and articulated characters. Dnake, C2-260 and C3 Plus walk without user input.
 
 - Zoom with the +/− buttons, mouse wheel or a two-finger pinch.
 - Choose Dnake, C2-260 or C3 Plus with the selector beside the activity text.
-- Drag the canvas to pan. Panning turns off camera follow.
+- Drag to rotate the 3D camera. Right-drag to pan, or use two-finger touch gestures.
+  Direct camera manipulation turns off follow. In the legacy angled view, drag pans.
 - Select **Follow Dnake**, **Follow C2-260** or **Follow C3 Plus** (or press F) to keep the selected mascot centered.
 - Select **Fit office** (or press 0) to return to an overview.
 - Keyboard +/− also zoom. The camera zoom range is bounded.
@@ -50,13 +51,17 @@ At mobile widths the scene starts in follow mode. Resizing changes the camera
 viewport without restarting Dnake's routine. After a background-tab pause, the
 routine resumes without simulating the entire hidden interval.
 
+The earlier angled pixel-art office remains at `/?view=angled`. WebGL failures
+automatically recover to that view with a fresh population. The 3D view uses
+original low-poly models and requires no private assets.
+
 The earlier flat preview remains available at `/?view=flat` (append `?view=flat`
 to the deployed URL when hosted under a base path). It retains the earlier static
 layout and has no new camera controls.
 
 ## Run with licensed local art
 
-The angled office uses the eight purchased Pixelwood NPC designs when available
+The legacy angled office (`?view=angled`) uses the eight purchased Pixelwood NPC designs when available
 (two designs repeat across ten coworkers). Its furniture remains original geometry.
 The flat preview at `?view=flat` also uses optional licensed furniture and layouts.
 The private asset workflow copies a curated runtime subset from the ignored licensed source directory into an ignored Vite public-asset cache:

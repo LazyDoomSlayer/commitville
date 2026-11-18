@@ -33,6 +33,10 @@ canvas {
   image-rendering: pixelated;
 }
 
+canvas.office-3d {
+  image-rendering: auto;
+}
+
 .hud {
   position: fixed;
   inset: 0 0 auto;

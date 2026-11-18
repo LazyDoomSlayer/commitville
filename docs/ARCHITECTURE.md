@@ -1,6 +1,6 @@
 # Architecture
 
-Commitville separates the deterministic simulation from its Phaser presentation. The browser shell composes both and owns lifecycle concerns.
+Commitville separates the deterministic simulation from its browser presentation (Three.js by default, Phaser for legacy views). The browser shell composes both and owns lifecycle concerns.
 
 ```text
 Browser shell (`src/main.ts`)
@@ -49,6 +49,14 @@ This boundary lets simulation systems run quickly in tests and makes future save
 
 ### Rendering
 
+The default `src/rendering/three/office-3d.runtime.ts` projects the same population
+snapshots into actual 3D models. `office-model.ts` owns furniture and floor,
+`character-models.ts` owns articulated humans and device mascots, and
+`model-parts.ts` owns reusable primitive meshes and model labels. Perspective
+camera and OrbitControls stay in the runtime. No licensed 2D asset is required.
+The shell lazy-loads Three.js or legacy Phaser, with automatic angled recovery
+when WebGL fails. See ADR 0010.
+
 Rendering code projects world state onto the screen. It owns Phaser scenes, cameras, sprite animation, map layers, lighting, and effects. It may translate visual events into simulation commands, but it must not own domain rules.
 
 ### Services
@@ -81,7 +89,7 @@ fixed simulation steps
       ↓
 immutable/read-only world snapshot
       ↓
-Phaser visual projection + DOM HUD
+Three.js or Phaser visual projection + DOM HUD
 ```
 
 A fixed step keeps navigation reproducible as frame timing varies. Rendering

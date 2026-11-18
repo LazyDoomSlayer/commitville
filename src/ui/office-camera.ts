@@ -15,6 +15,7 @@ export interface OfficeControlState {
   target: MascotId;
   zoom: number;
   minimumZoom: number;
+  maximumZoom?: number;
   following: boolean;
   activity: string;
   walking: boolean;
@@ -76,6 +77,7 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
         previous &&
         previous.zoom === state.zoom &&
         previous.minimumZoom === state.minimumZoom &&
+        previous.maximumZoom === state.maximumZoom &&
         previous.following === state.following &&
         previous.activity === state.activity &&
         previous.walking === state.walking &&
@@ -95,7 +97,7 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
       }
       if (zoomValue) zoomValue.value = `${Math.round(state.zoom * 100)}%`;
       zoomOut?.toggleAttribute('disabled', state.zoom <= state.minimumZoom);
-      zoomIn?.toggleAttribute('disabled', state.zoom >= 4);
+      zoomIn?.toggleAttribute('disabled', state.zoom >= (state.maximumZoom ?? 4) - 0.0001);
       follow?.setAttribute('aria-pressed', String(state.following));
       if (activity && activity.textContent !== state.activity)
         activity.textContent = state.activity;

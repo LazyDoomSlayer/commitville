@@ -60,7 +60,7 @@ The cache and the resulting private `dist/` build are local deployment artifacts
 
 ## Public fallback
 
-The default angled office uses original geometry with optional purchased Pixelwood
+The legacy angled office uses original geometry with optional purchased Pixelwood
 characters. Without the private manifest it uses original public fallback people.
 In the flat preview, an absent private manifest selects the generic placeholder
 office. GitHub Pages runs from a clean checkout, so licensed packs are never
@@ -91,7 +91,7 @@ owner-supplied DNAKE device photos and the initial generated concept. The large
 concept image has been replaced by explicit runtime pixels. Neither licensed
 artwork nor private device identifiers are used in the texture.
 
-The default angled office uses original projected geometry for the floor, walls
+The legacy angled office uses original projected geometry for the floor, walls
 and furniture; no purchased artwork is transformed or used as a generation
 reference. The earlier licensed preview is retained at `?view=flat`. It uses the
 mascot's idle frame; autonomous walking and camera controls belong to the angled
@@ -154,3 +154,11 @@ full body. This is furniture occlusion, not an authored seated or typing animati
 Missing or invalid individual sheets are skipped; absent private art falls back
 to the original public people. Private screenshots must remain in ignored local
 review folders, never committed with the pack art.
+
+## Original 3D models
+
+The default 3D view uses original low-poly meshes constructed in
+`src/rendering/three`. Furniture and articulated humans use shared primitives;
+mascots retain the recognizable physical features described above as solid
+geometry. Purchased sprite sheets are not used in this view. Private asset
+preparation remains useful for `?view=angled` and `?view=flat` only.

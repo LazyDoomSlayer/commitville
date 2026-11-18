@@ -22,3 +22,6 @@ Use the next available four-digit number. Accepted ADRs are not rewritten to hid
 - [0006 — Opportunistic mascot conversations](0006-opportunistic-mascot-conversations.md)
 - [0007 — Expanded office and fictional coworkers](0007-expanded-office-and-fictional-coworkers.md)
 - [0008 — Seated and standing workstations](0008-seated-and-standing-workstations.md)
+
+- [0009 — Purchased characters in the angled office](0009-licensed-office-characters.md)
+- [0010 — Real 3D office presentation](0010-real-3d-office.md)
