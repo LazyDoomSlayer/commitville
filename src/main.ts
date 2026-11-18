@@ -11,7 +11,9 @@ if (!clockElement) {
   throw new Error('The application shell is missing a required display element.');
 }
 
-const view = new URLSearchParams(window.location.search).get('view') === 'flat' ? 'flat' : 'angled';
+const parameters = new URLSearchParams(window.location.search);
+const view = parameters.get('view') === 'flat' ? 'flat' : 'angled';
+const piPreview = parameters.get('profile') === 'pi';
 const privateAssets = await loadPrivateAssets();
 if (view === 'flat') {
   document.querySelector('#population-summary')?.setAttribute('hidden', '');
@@ -47,7 +49,7 @@ const updateClock = (): void => {
 clockElement.textContent = worldClock.format(worldClock.snapshot());
 
 const clockTimer = window.setInterval(updateClock, 1_000);
-const game = new Phaser.Game(createGameConfig('game', view, privateAssets));
+const game = new Phaser.Game(createGameConfig('game', view, privateAssets, piPreview));
 
 window.addEventListener(
   'pagehide',

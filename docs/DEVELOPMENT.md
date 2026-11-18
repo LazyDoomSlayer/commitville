@@ -54,6 +54,13 @@ The earlier flat preview remains available at `/?view=flat` (append `?view=flat`
 to the deployed URL when hosted under a base path). It retains the earlier static
 layout and has no new camera controls.
 
+## Preview Pi frame pacing locally
+
+Open `/?profile=pi` to use the Canvas renderer and cap the game loop at 10 FPS,
+matching the observed Pi 3 presentation. The regular URL keeps its normal frame
+rate and automatic renderer selection. This mode approximates frame pacing; it
+does not emulate the Pi's CPU, memory, graphics driver or browser startup time.
+
 ## Run with licensed local art
 
 The angled office uses the eight purchased Pixelwood NPC designs when available
