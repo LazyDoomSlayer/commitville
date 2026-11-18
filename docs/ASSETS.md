@@ -144,7 +144,8 @@ When prepared locally, the angled office instead uses all eight purchased
 Pixelwood NPC sheets (`NPCs/1.png` through `8.png`), repeating two designs for the
 ten fictional coworkers. The renderer extracts idle and four-frame directional
 walks from the native 59×49 cells, mirrors side-facing frames for west, and uses
-integer scale with nearest-neighbor filtering. These are technical integrations
+integer scale three with nearest-neighbor filtering. Private desk heights are
+adjusted to the native chibi proportions. These are technical integrations
 of the purchased files, not generated imitations.
 
 The inspected sheets have no seated poses. Seated workers use a seat-aligned idle

@@ -71,7 +71,7 @@ export class OfficeScene extends Phaser.Scene {
     createZktecoTexture(this.textures);
     createC3PlusTexture(this.textures);
     this.cameras.main.setBackgroundColor('#172a32');
-    drawIsometricOffice(this);
+    drawIsometricOffice(this, this.licensedCoworkers.length > 0);
     createCoworkerTextures(this.textures);
     COWORKERS.forEach((_, index) =>
       this.coworkers.push({

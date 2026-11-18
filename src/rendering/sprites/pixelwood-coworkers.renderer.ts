@@ -66,13 +66,13 @@ export const applyPixelwoodCoworker = (
   sprite
     .setTexture(key, frame)
     .setOrigin(0.5, 27 / 28)
-    .setScale(2)
+    .setScale(3)
     .setFlipX(person.direction === 'west');
   // The pack has no seated frames. Keep its original upper body intact and
   // hide its feet behind the independently drawn chair and desk.
   if (seated) sprite.setCrop(0, 0, 24, 23);
   else sprite.setCrop();
-  // Cropped body ends 8px above its floor origin; lift another 8px to
+  // Cropped body ends 12px above its floor origin; lift another 4px to
   // meet the 16px-high seat instead of leaving it dangling below the cushion.
-  return seated ? -8 : 0;
+  return seated ? -4 : 0;
 };

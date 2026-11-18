@@ -91,7 +91,7 @@ const screen = (g: Graphics, x: number, y: number, base: number): void => {
   g.lineBetween(line.x, line.y, line.x + 7, line.y + 3);
 };
 
-const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture): void => {
+const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture, compactDesks: boolean): void => {
   const { x, y, width, depth, kind } = fixture;
   // Sort at the footprint's center: using its far corner would incorrectly
   // hide Dnake when he stands just in front of a wide meeting table.
@@ -112,7 +112,8 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture): void => {
     const standing =
       kind === 'desk' &&
       WORKSTATIONS.find((station) => station.x === x && station.y === y)?.posture === 'standing';
-    const surface = kind === 'meeting' ? 27 : standing ? 35 : 23;
+    const surface =
+      kind === 'meeting' ? 27 : compactDesks ? (standing ? 24 : 18) : standing ? 35 : 23;
     for (const dx of [0.18, width - 0.33]) {
       for (const dy of [0.18, depth - 0.33]) box(g, x + dx, y + dy, 0.14, 0.14, surface - 4, METAL);
     }
@@ -185,7 +186,7 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture): void => {
   }
 };
 
-export const drawIsometricOffice = (scene: Phaser.Scene): void => {
+export const drawIsometricOffice = (scene: Phaser.Scene, compactDesks = false): void => {
   const { width, height } = OFFICE_LAYOUT;
   const floor = scene.add.graphics().setDepth(-10_000);
   box(floor, 0, 0, width, OFFICE_LAYOUT.mainDepth, 9, [0x89a79e, 0x405e62, 0x304b54], -9);
@@ -314,5 +315,5 @@ export const drawIsometricOffice = (scene: Phaser.Scene): void => {
       .setDepth(-8_900);
   }
 
-  OFFICE_LAYOUT.fixtures.forEach((fixture) => drawFixture(scene, fixture));
+  OFFICE_LAYOUT.fixtures.forEach((fixture) => drawFixture(scene, fixture, compactDesks));
 };

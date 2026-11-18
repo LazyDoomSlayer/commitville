@@ -38,3 +38,13 @@ characters' heads. Use low backrests above the 16-pixel seat, and align the
 cropped body edge with that seat: a 23-pixel crop at scale two ends eight pixels
 above the sprite origin, so an additional eight-pixel lift lands it at seat
 height. This replaces the initial twelve-pixel offset and oversized backrest.
+
+## Character and desk proportions
+
+TV close-ups showed the native chibi characters were too small beside standing
+desks. Use integer scale three for purchased NPCs, with 24-pixel standing desks
+and 18-pixel seated desks. The public fallback retains its taller furniture to
+match its different body proportions. At scale three the cropped body ends
+12 pixels above the origin, so the seat alignment now needs a four-pixel lift.
+The low backrests remain below the heads. Furniture dimensions remain a rendering
+concern; navigation footprints and work assignments are unchanged.
