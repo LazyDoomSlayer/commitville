@@ -11,8 +11,10 @@ export const createGameConfig = (
   parent: string,
   view: 'angled' | 'flat' = 'angled',
   privateAssets: PrivateAssetsManifest | null = null,
+  piPreview = false,
 ): Phaser.Types.Core.GameConfig => ({
-  type: Phaser.AUTO,
+  type: piPreview ? Phaser.CANVAS : Phaser.AUTO,
+  ...(piPreview ? { fps: { target: 10, limit: 10 } } : {}),
   parent,
   backgroundColor: '#172a32',
   pixelArt: true,
