@@ -30,3 +30,11 @@ paths and frame-integration code enter Git. Missing/invalid sheets are skipped;
 without usable private character art the scene remains runnable with public art.
 Furniture and projected floor remain original geometry. Bespoke seated frames
 would require separately licensed or independently authored artwork later.
+
+## Seating alignment correction
+
+Close-up review exposed that the initial tall backrests covered the purchased
+characters' heads. Use low backrests above the 16-pixel seat, and align the
+cropped body edge with that seat: a 23-pixel crop at scale two ends eight pixels
+above the sprite origin, so an additional eight-pixel lift lands it at seat
+height. This replaces the initial twelve-pixel offset and oversized backrest.

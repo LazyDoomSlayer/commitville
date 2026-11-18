@@ -72,5 +72,7 @@ export const applyPixelwoodCoworker = (
   // hide its feet behind the independently drawn chair and desk.
   if (seated) sprite.setCrop(0, 0, 24, 23);
   else sprite.setCrop();
-  return seated ? -12 : 0;
+  // Cropped body ends 8px above its floor origin; lift another 8px to
+  // meet the 16px-high seat instead of leaving it dangling below the cushion.
+  return seated ? -8 : 0;
 };

@@ -131,8 +131,9 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture): void => {
     box(g, x + 0.26, y + 0.22, 0.48, 0.48, 4, METAL);
     box(g, x + 0.43, y + 0.38, 0.15, 0.15, 12, METAL);
     box(g, x + 0.13, y + 0.1, 0.74, 0.7, 4, [0x8aa49c, 0x536f70, 0x3e565f], 12);
+    // A low back supports the seated torso without masking the native NPC head.
     const back = scene.add.graphics().setDepth(g.depth + 0.5);
-    box(back, x + 0.13, y + 0.65, 0.74, 0.15, 15, [0x8aa49c, 0x536f70, 0x3e565f], 16);
+    box(back, x + 0.13, y + 0.65, 0.74, 0.15, 6, [0x8aa49c, 0x536f70, 0x3e565f], 16);
   } else if (kind === 'coffee') {
     box(g, x + 0.05, y + 0.05, width - 0.1, 0.9, 26, [0xe3dcc3, 0xb5b59e, 0x909c8c]);
     box(g, x, y, width, 1, 3, WOOD, 26);
