@@ -74,10 +74,17 @@ Before integrating another licensed pack:
 
 ## Dnake mascot
 
-`src/rendering/assets/dnake.png` is an original AI-generated mascot based on
-owner-supplied photos of a DNAKE intercom. It was created with the built-in image
-generation tool, independently of the licensed packs. The reference photos and
-device identifiers are not shipped. Vite bundles the mascot in both public and
-private builds; the office scene owns its placement and renders it with nearest
-filtering at a responsive size. This first integration is a stationary welcoming
-character, without navigation or simulation behavior.
+`src/rendering/sprites/dnake.texture.ts` owns an original 24×36 pixel mascot,
+drawn as an explicit pixel grid with a nine-color palette. Each grid cell becomes
+one solid texture pixel; the scene uses integer zoom and rounded coordinates.
+There is no downscaled illustration, antialiasing, glow, or nameplate.
+
+The design retains the camera, screen face, keypad, and silver casing from the
+owner-supplied DNAKE device photos and the initial generated concept. The large
+concept image has been replaced by this hand-authored runtime texture. Neither
+licensed artwork nor private device identifiers are used in the texture.
+
+The sprite is included in both public and private builds. The office scene owns
+its placement. Dnake is currently stationary, without navigation or simulation
+behavior; directional and animation frames can be added to the same pixel grid
+when those behaviors are introduced.

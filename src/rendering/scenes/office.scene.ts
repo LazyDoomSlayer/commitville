@@ -1,7 +1,5 @@
 import Phaser from 'phaser';
 
-import dnakeUrl from '../assets/dnake.png';
-
 import {
   PRIVATE_ASSETS_REGISTRY_KEY,
   type DonargAssetPaths,
@@ -10,6 +8,11 @@ import {
   type PixelwoodPackManifest,
   type PrivateAssetsManifest,
 } from '../../services/assets/private-assets.service';
+import {
+  createDnakeTexture,
+  DNAKE_SPRITE_WIDTH,
+  DNAKE_TEXTURE_KEY,
+} from '../sprites/dnake.texture';
 
 const COLORS = {
   wall: 0x22313d,
@@ -67,10 +70,6 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   preload(): void {
-    if (!this.textures.exists('dnake')) {
-      this.load.image('dnake', dnakeUrl);
-    }
-
     const manifest = this.registry.get(PRIVATE_ASSETS_REGISTRY_KEY) as PrivateAssetsManifest | null;
 
     this.pixelwoodPack = manifest?.packs.pixelwoodValley ?? null;
@@ -119,6 +118,7 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   create(): void {
+    createDnakeTexture(this.textures);
     this.cameras.main.setBackgroundColor(COLORS.wall);
 
     if (this.donargPack && this.textures.exists(DONARG_TEXTURES.officeDesign)) {
@@ -139,28 +139,11 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private drawDnake(x: number, feetY: number, width: number): void {
-    if (!this.textures.exists('dnake')) {
-      return;
-    }
-
-    const spriteWidth = Math.max(32, Math.round(width / 2) * 2);
+    const spriteScale = Math.max(1, Math.round(width / DNAKE_SPRITE_WIDTH));
     const centerX = Math.round(x);
     const bottom = Math.round(feetY);
 
-    this.add.ellipse(centerX, bottom - 5, spriteWidth * 0.7, 8, 0x101820, 0.3);
-    this.add
-      .image(centerX, bottom, 'dnake')
-      .setOrigin(0.5, 1)
-      .setDisplaySize(spriteWidth, spriteWidth * 1.5);
-    this.add
-      .text(centerX, bottom + 4, 'DNAKE', {
-        fontFamily: 'monospace',
-        fontSize: spriteWidth >= 80 ? '14px' : '10px',
-        color: '#d7fbe8',
-        backgroundColor: '#101820',
-        padding: { x: 4, y: 2 },
-      })
-      .setOrigin(0.5, 0);
+    this.add.image(centerX, bottom, DNAKE_TEXTURE_KEY).setOrigin(0.5, 1).setScale(spriteScale);
   }
 
   private drawDonargOffice(): void {
@@ -215,7 +198,7 @@ export class OfficeScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0);
 
-    this.drawDnake(left + 400 * officeScale, top + 395 * officeScale, 48 * officeScale);
+    this.drawDnake(left + 400 * officeScale, top + 395 * officeScale, 24 * officeScale);
   }
 
   private drawPixelwoodOffice(): void {
