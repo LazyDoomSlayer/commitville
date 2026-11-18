@@ -55,7 +55,9 @@ Rendering code projects world state onto the screen. It owns Phaser scenes, came
 
 Services will own browser storage and external communication. A scene or simulation system should ask a service to load or save data rather than knowing where that data lives.
 
-There is no `src/services` directory yet because the foundation has no external communication or durable persistence. We add the directory when that responsibility exists, not before.
+The asset service validates and loads optional local manifests for the flat
+preview. The default angled view does not need an external asset manifest.
+Durable persistence has not been implemented.
 
 ### Application shell
 
@@ -63,7 +65,11 @@ There is no `src/services` directory yet because the foundation has no external 
 
 ## Simulation loop direction
 
-The current foundation proves an independent world clock. The next simulation milestone will introduce a fixed-step runtime:
+The world clock remains independent. Dnake navigation now consumes elapsed time
+in fixed 50 ms steps, with rendering projecting its position and facing direction.
+Furniture footprints in `src/simulation/office` drive both pathfinding and visual
+placement. No Phaser or DOM APIs enter simulation code. The larger world runtime
+will build on this direction:
 
 ```text
 real elapsed time
@@ -75,7 +81,9 @@ immutable/read-only world snapshot
 Phaser visual projection + DOM HUD
 ```
 
-A fixed step keeps behavior reproducible when frame rates vary on Raspberry Pi hardware.
+A fixed step keeps navigation reproducible as frame timing varies. Rendering
+caps catch-up after background pauses. Camera changes and resizing do not reset
+the simulation. See ADR 0004 for the isometric and navigation decisions.
 
 ## Configuration
 

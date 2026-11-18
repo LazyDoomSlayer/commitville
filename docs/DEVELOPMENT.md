@@ -22,9 +22,29 @@ npm run dev
 
 Vite listens on all interfaces. This is intentional: it allows testing the development build from a Raspberry Pi or another device on the same trusted network. Do not expose the development server directly to the public internet.
 
+## Camera and view controls
+
+The default office is an angled 2.5D scene. Dnake walks without user input.
+
+- Zoom with the +/− buttons, mouse wheel or a two-finger pinch.
+- Drag the canvas to pan. Panning turns off Follow Dnake.
+- Select **Follow Dnake** (or press F) to keep the mascot centered.
+- Select **Fit office** (or press 0) to return to an overview.
+- Keyboard +/− also zoom. The camera zoom range is bounded.
+
+At mobile widths the scene starts in follow mode. Resizing changes the camera
+viewport without restarting Dnake's routine. After a background-tab pause, the
+routine resumes without simulating the entire hidden interval.
+
+The earlier flat preview remains available at `/?view=flat` (append `?view=flat`
+to the deployed URL when hosted under a base path). It retains the earlier static
+layout and has no new camera controls.
+
 ## Run with licensed local art
 
-The private asset workflow copies a curated runtime subset from the ignored licensed source directory into an ignored Vite public-asset cache:
+The flat preview at `?view=flat` uses optional licensed assets. The default angled
+view uses original geometry and does not load these packs. The private asset
+workflow copies a curated runtime subset from the ignored licensed source directory into an ignored Vite public-asset cache:
 
 ```bash
 npm run dev:private

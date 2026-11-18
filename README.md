@@ -8,9 +8,17 @@ The public project contains only fictional sample data and generic artwork. Real
 
 Commitville is in its foundation phase. The current app proves the browser runtime, rendering loop, simulation clock, automated checks, and deployment pipeline.
 
-Dnake, the intercom mascot, greets viewers in both the public placeholder office and
-the private art previews. It is currently stationary; autonomous behavior is a
-future milestone.
+Dnake, the intercom mascot, walks autonomously around an angled 2.5D office,
+avoiding furniture and pausing at the coffee station, desks, meeting area and
+lounge. Four facing directions and stepping frames reflect the route. Zoom,
+pan, fit the room or follow Dnake with the camera controls. A narrow screen starts
+in follow mode so the character stays readable.
+
+The earlier flat preview is still available at `?view=flat`, including optional
+licensed art. The default angled room uses original code-drawn geometry and needs
+no private files.
+
+![Dnake in the angled office](docs/images/angled-office.png)
 
 ## Stack
 

@@ -60,7 +60,10 @@ The cache and the resulting private `dist/` build are local deployment artifacts
 
 ## Public fallback
 
-When the private manifest is absent, Commitville renders its generic code-created placeholder office. GitHub Pages always uses this fallback because CI runs from a clean public checkout.
+The default angled office uses original geometry and needs no private assets.
+In the flat preview, an absent private manifest selects the generic placeholder
+office. GitHub Pages runs from a clean checkout, so licensed packs are never
+available there.
 
 ## Adding another pack
 
@@ -74,17 +77,21 @@ Before integrating another licensed pack:
 
 ## Dnake mascot
 
-`src/rendering/sprites/dnake.texture.ts` owns an original 24×36 pixel mascot,
-drawn as an explicit pixel grid with a nine-color palette. Each grid cell becomes
-one solid texture pixel; the scene uses integer zoom and rounded coordinates.
-There is no downscaled illustration, antialiasing, glow, or nameplate.
+`src/rendering/sprites/dnake.texture.ts` owns the original mascot's four-direction
+pixel atlas: 24×40 cells, four poses per direction, and a nine-color palette. Each
+source grid cell becomes one solid texture pixel. The walking animation alternates
+feet and arms; the back has vents and a service panel, while the side views have a
+narrow casing and lens profile. The scene selects direction and gait from
+simulation state, with integer sprite scale and rounded projected positions.
+Continuous camera zoom can change the final screen pixel size.
 
 The design retains the camera, screen face, keypad, and silver casing from the
 owner-supplied DNAKE device photos and the initial generated concept. The large
-concept image has been replaced by this hand-authored runtime texture. Neither
-licensed artwork nor private device identifiers are used in the texture.
+concept image has been replaced by explicit runtime pixels. Neither licensed
+artwork nor private device identifiers are used in the texture.
 
-The sprite is included in both public and private builds. The office scene owns
-its placement. Dnake is currently stationary, without navigation or simulation
-behavior; directional and animation frames can be added to the same pixel grid
-when those behaviors are introduced.
+The default angled office uses original projected geometry for the floor, walls
+and furniture; no purchased artwork is transformed or used as a generation
+reference. The earlier licensed preview is retained at `?view=flat`. It uses the
+mascot's idle frame; autonomous walking and camera controls belong to the angled
+view. Both views work without private asset files.

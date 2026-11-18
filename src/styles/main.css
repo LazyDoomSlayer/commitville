@@ -6,6 +6,10 @@
   text-rendering: optimizeLegibility;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -100,5 +104,149 @@ canvas {
     flex: none;
     padding: 5px 6px;
     font-size: 10px;
+  }
+}
+
+#game canvas {
+  touch-action: none;
+  cursor: grab;
+}
+
+#game canvas:active {
+  cursor: grabbing;
+}
+
+.office-status {
+  position: fixed;
+  bottom: 28px;
+  left: clamp(20px, 4vw, 56px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.office-status__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #a8d5c3;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+#dnake-status {
+  margin-left: 6px;
+  color: #829d9f;
+  letter-spacing: 0;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #98d9b3;
+}
+
+.office-status p {
+  margin: 9px 0 0;
+  color: #dce8d5;
+  font-size: 13px;
+}
+
+.camera-controls {
+  position: fixed;
+  right: clamp(20px, 4vw, 56px);
+  bottom: 24px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+  border: 1px solid #486264;
+  border-radius: 10px;
+  background: #172a32;
+  color: #dce8d5;
+}
+
+.camera-controls__zoom {
+  display: flex;
+  align-items: center;
+}
+
+.camera-controls button {
+  min-width: 38px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: inherit;
+  background: #233e47;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.camera-controls button:hover {
+  background: #34545a;
+}
+
+.camera-controls button:focus-visible {
+  outline: 2px solid #e9cb93;
+  outline-offset: 2px;
+}
+
+.camera-controls button[aria-pressed='true'] {
+  border-color: #9cd9b2;
+  color: #c9f2d6;
+  background: #30524f;
+}
+
+.camera-controls button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#zoom-value {
+  min-width: 54px;
+  text-align: center;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .office-status {
+    bottom: 94px;
+    left: 20px;
+    right: 20px;
+  }
+
+  .office-status p {
+    font-size: 11px;
+  }
+
+  .camera-controls {
+    right: 16px;
+    bottom: 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .camera-controls {
+    left: 12px;
+    right: 12px;
+    justify-content: space-between;
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .camera-controls button {
+    min-height: 42px;
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  #zoom-value {
+    min-width: 42px;
+  }
+
+  .office-status__eyebrow {
+    font-size: 9px;
   }
 }

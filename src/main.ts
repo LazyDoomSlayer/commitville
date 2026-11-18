@@ -1,26 +1,28 @@
 import Phaser from 'phaser';
 
-import { createGameConfig } from './rendering/config/game.config';
 import { loadPrivateAssets } from './services/assets/private-assets.service';
+import { createGameConfig } from './rendering/config/game.config';
 import { WorldClock } from './simulation/time/world-clock';
 import './styles/main.css';
 
 const clockElement = document.querySelector<HTMLTimeElement>('#world-clock');
-const artCreditElement = document.querySelector<HTMLParagraphElement>('#art-credit');
 
-if (!clockElement || !artCreditElement) {
+if (!clockElement) {
   throw new Error('The application shell is missing a required display element.');
 }
 
-const privateAssets = await loadPrivateAssets();
-
-if (privateAssets) {
-  const credits = [privateAssets.packs.donargOffice, privateAssets.packs.pixelwoodValley]
-    .filter((pack) => pack !== undefined)
-    .map((pack) => `${pack.title.toUpperCase()} · ${pack.creator.toUpperCase()}`);
-
-  artCreditElement.textContent = `ART: ${credits.join(' + ')}`;
-  artCreditElement.hidden = false;
+const view = new URLSearchParams(window.location.search).get('view') === 'flat' ? 'flat' : 'angled';
+const privateAssets = view === 'flat' ? await loadPrivateAssets() : null;
+if (view === 'flat') {
+  document.querySelector('.camera-controls')?.setAttribute('hidden', '');
+  document.querySelector('.office-status')?.setAttribute('hidden', '');
+  const credit = document.querySelector<HTMLElement>('#art-credit');
+  if (credit && privateAssets) {
+    credit.textContent = `ART: ${Object.values(privateAssets.packs)
+      .map((pack) => `${pack.title} · ${pack.creator}`)
+      .join(' + ')}`;
+    credit.hidden = false;
+  }
 }
 
 const worldClock = new WorldClock({
@@ -38,7 +40,7 @@ const updateClock = (): void => {
 clockElement.textContent = worldClock.format(worldClock.snapshot());
 
 const clockTimer = window.setInterval(updateClock, 1_000);
-const game = new Phaser.Game(createGameConfig('game', privateAssets));
+const game = new Phaser.Game(createGameConfig('game', view, privateAssets));
 
 window.addEventListener(
   'pagehide',
