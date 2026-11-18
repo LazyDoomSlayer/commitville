@@ -56,9 +56,10 @@ layout and has no new camera controls.
 
 ## Run with licensed local art
 
-The flat preview at `?view=flat` uses optional licensed assets. The default angled
-view uses original geometry and does not load these packs. The private asset
-workflow copies a curated runtime subset from the ignored licensed source directory into an ignored Vite public-asset cache:
+The angled office uses the eight purchased Pixelwood NPC designs when available
+(two designs repeat across ten coworkers). Its furniture remains original geometry.
+The flat preview at `?view=flat` also uses optional licensed furniture and layouts.
+The private asset workflow copies a curated runtime subset from the ignored licensed source directory into an ignored Vite public-asset cache:
 
 ```bash
 npm run dev:private

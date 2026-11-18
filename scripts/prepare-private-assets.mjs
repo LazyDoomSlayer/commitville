@@ -44,6 +44,10 @@ const pixelwoodSelectedAssets = {
   npcTwo: ['NPCs/2.png', 'npc-2.png'],
   npcThree: ['NPCs/3.png', 'npc-3.png'],
   npcFour: ['NPCs/4.png', 'npc-4.png'],
+  npcFive: ['NPCs/5.png', 'npc-5.png'],
+  npcSix: ['NPCs/6.png', 'npc-6.png'],
+  npcSeven: ['NPCs/7.png', 'npc-7.png'],
+  npcEight: ['NPCs/8.png', 'npc-8.png'],
 };
 
 const donargSelectedAssets = {

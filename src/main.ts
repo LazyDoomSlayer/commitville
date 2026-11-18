@@ -12,17 +12,23 @@ if (!clockElement) {
 }
 
 const view = new URLSearchParams(window.location.search).get('view') === 'flat' ? 'flat' : 'angled';
-const privateAssets = view === 'flat' ? await loadPrivateAssets() : null;
+const privateAssets = await loadPrivateAssets();
 if (view === 'flat') {
   document.querySelector('#population-summary')?.setAttribute('hidden', '');
   document.querySelector('.camera-controls')?.setAttribute('hidden', '');
   document.querySelector('.office-status')?.setAttribute('hidden', '');
+}
+{
   const credit = document.querySelector<HTMLElement>('#art-credit');
   if (credit && privateAssets) {
-    credit.textContent = `ART: ${Object.values(privateAssets.packs)
+    const packs =
+      view === 'flat'
+        ? Object.values(privateAssets.packs)
+        : [privateAssets.packs.pixelwoodValley].filter((pack) => pack !== undefined);
+    credit.textContent = `ART: ${packs
       .map((pack) => `${pack.title} · ${pack.creator}`)
       .join(' + ')}`;
-    credit.hidden = false;
+    credit.hidden = packs.length === 0;
   }
 }
 

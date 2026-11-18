@@ -55,8 +55,11 @@ Rendering code projects world state onto the screen. It owns Phaser scenes, came
 
 Services will own browser storage and external communication. A scene or simulation system should ask a service to load or save data rather than knowing where that data lives.
 
-The asset service validates and loads optional local manifests for the flat
-preview. The default angled view does not need an external asset manifest.
+The asset service validates and loads optional local manifests for both views,
+with a bounded startup request and public fallback. The angled scene delegates
+licensed NPC frame selection, scale and seated occlusion to
+`pixelwood-coworkers.renderer.ts`; simulation remains independent of art packs.
+See ADR 0009 for licensed character integration and pose limitations.
 Durable persistence has not been implemented.
 
 ### Application shell

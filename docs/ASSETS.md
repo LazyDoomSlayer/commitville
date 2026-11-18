@@ -60,7 +60,8 @@ The cache and the resulting private `dist/` build are local deployment artifacts
 
 ## Public fallback
 
-The default angled office uses original geometry and needs no private assets.
+The default angled office uses original geometry with optional purchased Pixelwood
+characters. Without the private manifest it uses original public fallback people.
 In the flat preview, an absent private manifest selects the generic placeholder
 office. GitHub Pages runs from a clean checkout, so licensed packs are never
 available there.
@@ -135,6 +136,20 @@ flat preview remains unchanged.
 
 `src/rendering/sprites/coworker.texture.ts` draws ten original 24×40 pixel people
 with distinct shirt, hair and skin palettes. Each has front/back/profile walking
-frames and separate standing/seated typing poses, including bent legs for seated work. These sprites are independent of the
+frames and separate standing/seated typing poses, including compact legs tucked beneath the desk for seated work. These sprites are independent of the
 licensed packs and do not depict real employees. The fictional names, tasks and
 home workstations live in `src/simulation/characters/coworker-roster.ts`.
+
+When prepared locally, the angled office instead uses all eight purchased
+Pixelwood NPC sheets (`NPCs/1.png` through `8.png`), repeating two designs for the
+ten fictional coworkers. The renderer extracts idle and four-frame directional
+walks from the native 59×49 cells, mirrors side-facing frames for west, and uses
+integer scale with nearest-neighbor filtering. These are technical integrations
+of the purchased files, not generated imitations.
+
+The inspected sheets have no seated poses. Seated workers use a seat-aligned idle
+upper body with feet cropped behind the chair/desk; standing workers retain the
+full body. This is furniture occlusion, not an authored seated or typing animation.
+Missing or invalid individual sheets are skipped; absent private art falls back
+to the original public people. Private screenshots must remain in ignored local
+review folders, never committed with the pack art.

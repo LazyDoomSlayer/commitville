@@ -92,13 +92,14 @@ export const createCoworkerTextures = (textures: Phaser.Textures.TextureManager)
           }
         }
         if (seated) {
-          // Horizontal thighs, a short drop to the feet, and separated knees.
-          rect(8, 30, 4, 3, palette.trousers);
-          rect(14, 30, 4, 3, palette.trousers);
-          rect(7, 32, 3, 5, palette.trousers);
-          rect(16, 32, 3, 5, palette.trousers);
-          rect(6, 36, 5, 2, palette.shoe);
-          rect(16, 36, 5, 2, palette.shoe);
+          // Compact bent legs below the seat; shoes stay together beneath
+          // the desk instead of splaying around the chair's wheel base.
+          rect(9, 30, 3, 3, palette.trousers);
+          rect(13, 30, 3, 3, palette.trousers);
+          rect(10, 32, 2, 4, palette.trousers);
+          rect(13, 32, 2, 4, palette.trousers);
+          rect(10, 36, 3, 2, palette.shoe);
+          rect(13, 36, 3, 2, palette.shoe);
         } else {
           for (const [x, offset] of [
             [9, stride],

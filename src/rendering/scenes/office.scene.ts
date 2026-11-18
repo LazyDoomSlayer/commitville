@@ -1,3 +1,12 @@
+import {
+  PRIVATE_ASSETS_REGISTRY_KEY,
+  type PrivateAssetsManifest,
+} from '../../services/assets/private-assets.service';
+import {
+  queuePixelwoodCoworkers,
+  preparePixelwoodCoworkers,
+  applyPixelwoodCoworker,
+} from '../sprites/pixelwood-coworkers.renderer';
 import { COWORKERS } from '../../simulation/characters/coworker-roster';
 import {
   createCoworkerTextures,
@@ -41,6 +50,7 @@ export class OfficeScene extends Phaser.Scene {
   >();
   private controls: ReturnType<typeof bindOfficeControls> | undefined;
   private speech: ReturnType<typeof createMascotSpeech> | undefined;
+  private licensedCoworkers: string[] = [];
   private fitZoom = 1;
   private following = false;
   private dragLast: { x: number; y: number } | undefined;
@@ -50,7 +60,13 @@ export class OfficeScene extends Phaser.Scene {
     super('office');
   }
 
+  preload(): void {
+    const manifest = this.registry.get(PRIVATE_ASSETS_REGISTRY_KEY) as PrivateAssetsManifest | null;
+    queuePixelwoodCoworkers(this, manifest?.packs.pixelwoodValley);
+  }
+
   create(): void {
+    this.licensedCoworkers = preparePixelwoodCoworkers(this.textures);
     createDnakeTexture(this.textures);
     createZktecoTexture(this.textures);
     createC3PlusTexture(this.textures);
@@ -122,10 +138,13 @@ export class OfficeScene extends Phaser.Scene {
             person.direction,
             person.walking ? Math.floor(person.walkingMs / 140) % 4 : 0,
           );
-      sprite
-        .setPosition(point.x, point.y)
-        .setDepth((person.x + person.y) * 100)
-        .setFrame(frame);
+      sprite.setPosition(point.x, point.y).setDepth((person.x + person.y) * 100);
+      if (this.licensedCoworkers.length === 0) sprite.setFrame(frame);
+      else {
+        const key = this.licensedCoworkers[index % this.licensedCoworkers.length]!;
+        const seatedOffset = applyPixelwoodCoworker(sprite, key, person);
+        sprite.setPosition(point.x, point.y + seatedOffset);
+      }
       shadow.setPosition(point.x, point.y).setDepth(sprite.depth - 1);
     });
     const speaker = MASCOT_IDS.find((id) => states[id].speech !== null);

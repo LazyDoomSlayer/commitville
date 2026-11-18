@@ -47,6 +47,10 @@ const PIXELWOOD_TEXTURES: Record<keyof PixelwoodAssetPaths, string> = {
   npcTwo: 'pixelwood-npc-2',
   npcThree: 'pixelwood-npc-3',
   npcFour: 'pixelwood-npc-4',
+  npcFive: 'pixelwood-npc-5',
+  npcSix: 'pixelwood-npc-6',
+  npcSeven: 'pixelwood-npc-7',
+  npcEight: 'pixelwood-npc-8',
 };
 
 const DONARG_TEXTURES: Record<keyof DonargAssetPaths, string> = {
@@ -60,6 +64,10 @@ const NPC_ASSET_NAMES: ReadonlyArray<keyof PixelwoodAssetPaths> = [
   'npcTwo',
   'npcThree',
   'npcFour',
+  'npcFive',
+  'npcSix',
+  'npcSeven',
+  'npcEight',
 ];
 
 export class FlatOfficeScene extends Phaser.Scene {
