@@ -25,3 +25,4 @@ Use the next available four-digit number. Accepted ADRs are not rewritten to hid
 
 - [0009 — Purchased characters in the angled office](0009-licensed-office-characters.md)
 - [0010 — Retain the angled pixel-art office](0010-retain-angled-pixel-art-office.md)
+- [0011 — Compatible 2D rendering](0011-compatible-2d-rendering.md)

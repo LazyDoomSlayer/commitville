@@ -103,11 +103,13 @@ export class OfficeScene extends Phaser.Scene {
     this.resizeCamera(true);
     this.scale.on('resize', this.onResize, this);
     this.bindPointerControls();
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    const dispose = () => {
       this.scale.off('resize', this.onResize, this);
       this.controls?.destroy();
       this.speech?.destroy();
-    });
+    };
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, dispose);
+    this.events.once(Phaser.Scenes.Events.DESTROY, dispose);
     this.update(0, 0);
   }
 

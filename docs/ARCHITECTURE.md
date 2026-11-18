@@ -51,6 +51,12 @@ This boundary lets simulation systems run quickly in tests and makes future save
 
 Rendering code projects world state onto the screen. It owns Phaser scenes, cameras, sprite animation, map layers, lighting, and effects. It may translate visual events into simulation commands, but it must not own domain rules.
 
+Renderer configuration owns capability detection and WebGL-to-Canvas recovery.
+The application shell delegates boot and teardown to `compatible-game.runtime.ts`.
+The isometric office renderer rasterizes static art into cached textures, keeping
+separate furniture layers for depth ordering. Simulation rules do not depend on
+the selected backend. See ADR 0011.
+
 ### Services
 
 Services will own browser storage and external communication. A scene or simulation system should ask a service to load or save data rather than knowing where that data lives.
