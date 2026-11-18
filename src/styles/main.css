@@ -307,3 +307,17 @@ canvas {
   border-bottom: 2px solid #718c82;
   background: #ecebd8;
 }
+
+.hud .hud__summary {
+  margin-top: 8px;
+  color: #a9c3b8;
+  font-size: clamp(9px, 1vw, 13px);
+}
+
+@media (max-width: 480px) {
+  .hud .hud__summary {
+    max-width: 240px;
+    font-size: 8px;
+    margin-top: 5px;
+  }
+}

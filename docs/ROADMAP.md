@@ -13,6 +13,8 @@ The roadmap is ordered by useful, observable milestones rather than speculative 
 - Dnake, C2-260 and C3 Plus mascots with four-direction walking, fixed-step patrols,
   furniture collision and cell reservations
 
+- Larger L-shaped office with ten fictional coworkers, typing and seeded work/break routines
+
 ## 1. One believable workday
 
 - One fictional character
@@ -27,11 +29,11 @@ Success means a viewer can watch one character complete a recognizable day witho
 ## 2. A small team
 
 The device mascots now have proximity conversations, turn-taking and speech
-bubbles. Human teams, relationships and deeper workday behavior remain ahead.
+bubbles. Ten fictional coworkers now alternate work and wandering. Relationships and deeper workday behavior remain ahead.
 
-- Five fictional characters with distinct roles and traits
+- Deepen the ten fictional coworkers' roles and traits
 - Shared tasks and pair interactions
-- Conversation bubbles
+- Extend conversations to coworkers
 - Relationships and social needs
 - Meetings and lunch routines
 

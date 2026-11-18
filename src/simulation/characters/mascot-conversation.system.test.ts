@@ -6,7 +6,7 @@ import {
   CONVERSATION_TURN_MS,
 } from './mascot-conversation.system';
 import { MASCOT_IDS } from './mascot-roster';
-import { OfficeMascotsSystem } from './office-mascots.system';
+import { OfficePopulationSystem } from './office-population.system';
 import type { PatrolSnapshot } from './office-patrol.system';
 
 const standing = (x: number, y: number): PatrolSnapshot => ({
@@ -78,7 +78,7 @@ describe('mascot conversations', () => {
   });
 
   it('freezes patrol positions during a chat and resumes movement afterwards', () => {
-    const mascots = new OfficeMascotsSystem();
+    const mascots = new OfficePopulationSystem();
     const start = mascots.advance(2_000);
     expect(MASCOT_IDS.every((id) => start[id].talking)).toBe(true);
     const during = mascots.advance(4_000);

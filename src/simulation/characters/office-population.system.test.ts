@@ -3,13 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { isOfficeWalkable } from '../office/office-layout';
 import { C3_PLUS_STOPS } from './c3-plus-walk.system';
 import { DNAKE_STOPS } from './dnake-walk.system';
-import { MASCOT_IDS, OfficeMascotsSystem } from './office-mascots.system';
+import { MASCOT_IDS, OfficePopulationSystem } from './office-population.system';
 import { OfficePatrolSystem } from './office-patrol.system';
 import { ZKTECO_STOPS } from './zkteco-walk.system';
 
 describe('office mascots', () => {
   it('keeps all three patrols moving, visits every stop, and avoids furniture and one another', () => {
-    const system = new OfficeMascotsSystem();
+    const system = new OfficePopulationSystem();
     const activities = {
       dnake: new Set<string>(),
       zkteco: new Set<string>(),
@@ -44,8 +44,8 @@ describe('office mascots', () => {
   });
 
   it('coordinates all three characters independently of display frame timing', () => {
-    const single = new OfficeMascotsSystem();
-    const frames = new OfficeMascotsSystem();
+    const single = new OfficePopulationSystem();
+    const frames = new OfficePopulationSystem();
     single.advance(160_000);
     for (let index = 0; index < 10_000; index += 1) frames.advance(16);
     expect(frames.snapshot()).toEqual(single.snapshot());

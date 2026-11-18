@@ -14,6 +14,7 @@ if (!clockElement) {
 const view = new URLSearchParams(window.location.search).get('view') === 'flat' ? 'flat' : 'angled';
 const privateAssets = view === 'flat' ? await loadPrivateAssets() : null;
 if (view === 'flat') {
+  document.querySelector('#population-summary')?.setAttribute('hidden', '');
   document.querySelector('.camera-controls')?.setAttribute('hidden', '');
   document.querySelector('.office-status')?.setAttribute('hidden', '');
   const credit = document.querySelector<HTMLElement>('#art-credit');

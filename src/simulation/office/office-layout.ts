@@ -12,8 +12,10 @@ export interface OfficeFixture extends GridPoint {
 // Grid footprints are shared by navigation and rendering so furniture cannot
 // accidentally become walkable when its visual placement changes.
 export const OFFICE_LAYOUT = {
-  width: 14,
-  height: 12,
+  width: 24,
+  height: 18,
+  mainDepth: 12,
+  loungeWidth: 14,
   fixtures: [
     { kind: 'coffee', x: 1, y: 1, width: 2, depth: 1 },
     { kind: 'shelf', x: 6, y: 0, width: 3, depth: 1 },
@@ -29,16 +31,36 @@ export const OFFICE_LAYOUT = {
     { kind: 'meeting', x: 10, y: 6, width: 3, depth: 2 },
     { kind: 'sofa', x: 1, y: 10, width: 3, depth: 1 },
     { kind: 'plant', x: 0, y: 7, width: 1, depth: 1 },
+    { kind: 'desk', x: 15, y: 2, width: 2, depth: 1 },
+    { kind: 'chair', x: 15, y: 3, width: 1, depth: 1 },
+    { kind: 'desk', x: 19, y: 2, width: 2, depth: 1 },
+    { kind: 'chair', x: 19, y: 3, width: 1, depth: 1 },
+    { kind: 'desk', x: 15, y: 6, width: 2, depth: 1 },
+    { kind: 'chair', x: 15, y: 7, width: 1, depth: 1 },
+    { kind: 'desk', x: 19, y: 6, width: 2, depth: 1 },
+    { kind: 'chair', x: 19, y: 7, width: 1, depth: 1 },
+    { kind: 'desk', x: 15, y: 10, width: 2, depth: 1 },
+    { kind: 'chair', x: 15, y: 11, width: 1, depth: 1 },
+    { kind: 'desk', x: 19, y: 10, width: 2, depth: 1 },
+    { kind: 'chair', x: 19, y: 11, width: 1, depth: 1 },
+    { kind: 'sofa', x: 1, y: 16, width: 4, depth: 1 },
+    { kind: 'coffee', x: 9, y: 16, width: 2, depth: 1 },
+    { kind: 'plant', x: 12, y: 16, width: 1, depth: 1 },
+    { kind: 'plant', x: 22, y: 1, width: 1, depth: 1 },
   ] satisfies OfficeFixture[],
 } as const;
 
-export const isOfficeWalkable = ({ x, y }: GridPoint): boolean =>
+export const isOfficeFloor = ({ x, y }: GridPoint): boolean =>
   Number.isInteger(x) &&
   Number.isInteger(y) &&
   x >= 0 &&
   y >= 0 &&
   x < OFFICE_LAYOUT.width &&
   y < OFFICE_LAYOUT.height &&
+  (y < OFFICE_LAYOUT.mainDepth || x < OFFICE_LAYOUT.loungeWidth);
+
+export const isOfficeWalkable = ({ x, y }: GridPoint): boolean =>
+  isOfficeFloor({ x, y }) &&
   !OFFICE_LAYOUT.fixtures.some(
     (fixture) =>
       x >= fixture.x &&

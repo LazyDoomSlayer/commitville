@@ -130,3 +130,11 @@ are not shipped. The artwork uses solid native pixels and simplified fictional
 traces, independently of the licensed packs. C3 Plus joins Dnake and C2-260 in
 the angled office with its own patrol and selectable follow camera. The earlier
 flat preview remains unchanged.
+
+## Fictional coworkers
+
+`src/rendering/sprites/coworker.texture.ts` draws ten original 20×32 pixel people
+with distinct shirt, hair and skin palettes. Each has front/back/profile walking
+frames and a small typing motion at work. These sprites are independent of the
+licensed packs and do not depict real employees. The fictional names, tasks and
+home workstations live in `src/simulation/characters/coworker-roster.ts`.

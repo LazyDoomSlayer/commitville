@@ -2,16 +2,19 @@ import { findOfficePath, isOfficeWalkable, type GridPoint } from '../office/offi
 
 export type PatrolDirection = 'south' | 'east' | 'north' | 'west';
 export interface PatrolStop extends GridPoint {
+  readonly activityKind?: 'work' | 'break';
   readonly activity: string;
   readonly pauseMs: number;
 }
 export interface PatrolSnapshot extends GridPoint {
+  readonly activityKind?: 'work' | 'break';
   readonly direction: PatrolDirection;
   readonly walking: boolean;
   readonly walkingMs: number;
   readonly activity: string;
 }
 interface PatrolOptions {
+  readonly initialActivityKind?: 'work' | 'break';
   readonly start: GridPoint;
   readonly stops: readonly PatrolStop[];
   readonly speed: number;
@@ -35,6 +38,7 @@ export class OfficePatrolSystem {
   private walkingMs = 0;
   private waiting = false;
   private activity: string;
+  private activityKind: 'work' | 'break';
 
   constructor(private readonly options: PatrolOptions) {
     if (
@@ -57,6 +61,7 @@ export class OfficePatrolSystem {
     this.y = this.cell.y + 0.5;
     this.pauseMs = options.pauseMs;
     this.activity = options.activity;
+    this.activityKind = options.initialActivityKind ?? 'break';
   }
 
   advance(elapsedMs: number, occupied: readonly GridPoint[] = []): PatrolSnapshot {
@@ -78,6 +83,7 @@ export class OfficePatrolSystem {
       walking: this.path.length > 0 && !this.waiting,
       walkingMs: this.walkingMs,
       activity: this.waiting ? 'Waiting for a clear path' : this.activity,
+      activityKind: this.activityKind,
     };
   }
 
@@ -94,6 +100,7 @@ export class OfficePatrolSystem {
     const stop = this.options.stops[this.stopIndex]!;
     this.pauseMs = stop.pauseMs;
     this.activity = stop.activity;
+    this.activityKind = stop.activityKind ?? 'break';
     this.walkingMs = 0;
     this.waiting = false;
     this.needsDestination = true;
@@ -105,6 +112,7 @@ export class OfficePatrolSystem {
       return;
     }
     if (this.needsDestination) {
+      this.activityKind = 'break';
       this.stopIndex = (this.stopIndex + 1) % this.options.stops.length;
       this.needsDestination = false;
       const stop = this.options.stops[this.stopIndex]!;

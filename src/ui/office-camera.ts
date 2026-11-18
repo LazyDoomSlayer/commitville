@@ -2,7 +2,7 @@ import {
   MASCOT_IDS,
   MASCOT_NAMES,
   type MascotId,
-} from '../simulation/characters/office-mascots.system';
+} from '../simulation/characters/office-population.system';
 
 export interface OfficeCameraActions {
   select: (id: MascotId) => void;
@@ -19,6 +19,8 @@ export interface OfficeControlState {
   activity: string;
   walking: boolean;
   talking: boolean;
+  workers: number;
+  walkers: number;
 }
 
 export const bindOfficeControls = (actions: OfficeCameraActions) => {
@@ -40,6 +42,7 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
     },
     options,
   );
+  const populationSummary = document.querySelector<HTMLElement>('#population-summary');
   let previous: OfficeControlState | undefined;
 
   zoomOut?.addEventListener('click', () => actions.zoom(-1), options);
@@ -77,10 +80,14 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
         previous.activity === state.activity &&
         previous.walking === state.walking &&
         previous.talking === state.talking &&
-        previous.target === state.target
+        previous.target === state.target &&
+        previous.workers === state.workers &&
+        previous.walkers === state.walkers
       )
         return;
       previous = state;
+      if (populationSummary)
+        populationSummary.textContent = `10 coworkers · 3 mascots · ${state.workers} working · ${state.walkers} walking`;
       if (mascotSelect) mascotSelect.value = state.target;
       if (follow) {
         follow.textContent = `Follow ${MASCOT_NAMES[state.target]}`;

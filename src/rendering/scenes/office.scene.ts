@@ -1,22 +1,36 @@
+import { COWORKERS } from '../../simulation/characters/coworker-roster';
+import {
+  createCoworkerTextures,
+  coworkerTextureKey,
+  coworkerFrame,
+} from '../sprites/coworker.texture';
 import Phaser from 'phaser';
 
 import {
   MASCOT_IDS,
   MASCOT_NAMES,
-  OfficeMascotsSystem,
+  OfficePopulationSystem,
   type MascotId,
-} from '../../simulation/characters/office-mascots.system';
+} from '../../simulation/characters/office-population.system';
 import type { PatrolDirection } from '../../simulation/characters/office-patrol.system';
 import { createMascotSpeech } from '../../ui/mascot-speech';
 import { bindOfficeControls } from '../../ui/office-camera';
-import { drawIsometricOffice, projectOfficePoint } from '../office/isometric-office.renderer';
+import {
+  OFFICE_VIEW,
+  drawIsometricOffice,
+  projectOfficePoint,
+} from '../office/isometric-office.renderer';
 import { createC3PlusTexture, C3_PLUS_TEXTURE_KEY, c3PlusFrame } from '../sprites/c3-plus.texture';
 import { createDnakeTexture, DNAKE_TEXTURE_KEY, dnakeFrame } from '../sprites/dnake.texture';
 import { createZktecoTexture, ZKTECO_TEXTURE_KEY, zktecoFrame } from '../sprites/zkteco.texture';
 
 export class OfficeScene extends Phaser.Scene {
-  private readonly mascots = new OfficeMascotsSystem();
+  private readonly population = new OfficePopulationSystem();
   private selectedMascot: MascotId = 'dnake';
+  private readonly coworkers: {
+    sprite: Phaser.GameObjects.Sprite;
+    shadow: Phaser.GameObjects.Ellipse;
+  }[] = [];
   private readonly visuals = new Map<
     MascotId,
     {
@@ -42,6 +56,16 @@ export class OfficeScene extends Phaser.Scene {
     createC3PlusTexture(this.textures);
     this.cameras.main.setBackgroundColor('#172a32');
     drawIsometricOffice(this);
+    createCoworkerTextures(this.textures);
+    COWORKERS.forEach((_, index) =>
+      this.coworkers.push({
+        sprite: this.add
+          .sprite(0, 0, coworkerTextureKey(index), 'south-0')
+          .setOrigin(0.5, 31 / 32)
+          .setScale(2),
+        shadow: this.add.ellipse(0, 0, 20, 9, 0x1d3e43, 0.25),
+      }),
+    );
     this.addMascot('dnake', DNAKE_TEXTURE_KEY, dnakeFrame, 0.95, 27);
     this.addMascot('zkteco', ZKTECO_TEXTURE_KEY, zktecoFrame, 34 / 36, 40);
     this.addMascot('c3plus', C3_PLUS_TEXTURE_KEY, c3PlusFrame, 46 / 48, 33);
@@ -74,7 +98,7 @@ export class OfficeScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     // A background-tab resume pauses the ambient routine instead of racing
     // through minutes of movement. The domain consumes fixed 50 ms steps.
-    const states = this.mascots.advance(Math.min(delta, 250));
+    const states = this.population.advance(Math.min(delta, 250));
     for (const id of MASCOT_IDS) {
       const state = states[id];
       const position = projectOfficePoint(state.x, state.y);
@@ -89,6 +113,21 @@ export class OfficeScene extends Phaser.Scene {
       if (this.following && id === this.selectedMascot)
         this.cameras.main.centerOn(position.x, position.y - 25);
     }
+    states.coworkers.forEach((person, index) => {
+      const point = projectOfficePoint(person.x, person.y);
+      const { sprite, shadow } = this.coworkers[index]!;
+      const frame = person.working
+        ? `work-${Math.floor(_time / 300 + index) % 2}`
+        : coworkerFrame(
+            person.direction,
+            person.walking ? Math.floor(person.walkingMs / 140) % 4 : 0,
+          );
+      sprite
+        .setPosition(point.x, point.y)
+        .setDepth((person.x + person.y) * 100)
+        .setFrame(frame);
+      shadow.setPosition(point.x, point.y).setDepth(sprite.depth - 1);
+    });
     const speaker = MASCOT_IDS.find((id) => states[id].speech !== null);
     if (speaker) {
       const camera = this.cameras.main;
@@ -136,7 +175,11 @@ export class OfficeScene extends Phaser.Scene {
     const camera = this.cameras.main;
     camera.setViewport(0, top, width, viewportHeight);
     const previousFit = this.fitZoom;
-    this.fitZoom = Math.min((width - 32) / 880, viewportHeight / 510) * 0.96;
+    this.fitZoom =
+      Math.min(
+        (width - 32) / (OFFICE_VIEW.right - OFFICE_VIEW.left),
+        viewportHeight / (OFFICE_VIEW.bottom - OFFICE_VIEW.top),
+      ) * 0.96;
     if (initial) {
       if (width <= 600) {
         this.following = true;
@@ -152,7 +195,7 @@ export class OfficeScene extends Phaser.Scene {
 
   private fitOffice(): void {
     this.following = false;
-    this.cameras.main.setZoom(this.fitZoom).centerOn(32, 170);
+    this.cameras.main.setZoom(this.fitZoom).centerOn(OFFICE_VIEW.centerX, OFFICE_VIEW.centerY);
     this.updateControls();
   }
 
@@ -206,8 +249,16 @@ export class OfficeScene extends Phaser.Scene {
             this.following = false;
             const camera = this.cameras.main;
             camera.centerOn(
-              Phaser.Math.Clamp(camera.scrollX + camera.width / 2 - dx / camera.zoom, -420, 480),
-              Phaser.Math.Clamp(camera.scrollY + camera.height / 2 - dy / camera.zoom, -100, 450),
+              Phaser.Math.Clamp(
+                camera.scrollX + camera.width / 2 - dx / camera.zoom,
+                OFFICE_VIEW.left,
+                OFFICE_VIEW.right,
+              ),
+              Phaser.Math.Clamp(
+                camera.scrollY + camera.height / 2 - dy / camera.zoom,
+                OFFICE_VIEW.top,
+                OFFICE_VIEW.bottom,
+              ),
             );
             this.updateControls();
           }
@@ -222,7 +273,8 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private updateControls(): void {
-    const state = this.mascots.snapshot()[this.selectedMascot];
+    const population = this.population.snapshot();
+    const state = population[this.selectedMascot];
     this.controls?.update({
       zoom: this.cameras.main.zoom,
       minimumZoom: Math.min(0.5, this.fitZoom),
@@ -231,6 +283,8 @@ export class OfficeScene extends Phaser.Scene {
       activity: state.activity,
       walking: state.walking,
       talking: state.talking,
+      workers: population.coworkers.filter((person) => person.working).length,
+      walkers: population.coworkers.filter((person) => person.walking).length,
     });
   }
 }

@@ -28,7 +28,12 @@ The earlier flat preview is still available at `?view=flat`, including optional
 licensed art. The default angled room uses original code-drawn geometry and needs
 no private files.
 
-![Three mascots in the angled office](docs/images/angled-office.png)
+![Ten coworkers and three mascots in the expanded office](docs/images/angled-office.png)
+
+The office now has a larger L-shaped footprint, ten desks and ten fictional
+coworkers alongside the three mascots. Some work at their desks while others
+wander through the studio and lounge or take coffee breaks. Their seeded
+schedules alternate work and breaks, and the HUD shows the current activity mix.
 
 ## Stack
 

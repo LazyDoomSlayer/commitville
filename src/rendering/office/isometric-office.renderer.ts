@@ -1,11 +1,32 @@
 import type Phaser from 'phaser';
 
-import { OFFICE_LAYOUT, type OfficeFixture } from '../../simulation/office/office-layout';
+import {
+  OFFICE_LAYOUT,
+  isOfficeFloor,
+  type OfficeFixture,
+} from '../../simulation/office/office-layout';
 
 export const projectOfficePoint = (x: number, y: number, z = 0): { x: number; y: number } => ({
   x: Math.round((x - y) * 32),
   y: Math.round((x + y) * 16 - z),
 });
+
+// Camera geometry follows the same footprint as the floor, including the cutout.
+const roomLeft = projectOfficePoint(0, OFFICE_LAYOUT.height).x - 24;
+const roomRight = projectOfficePoint(OFFICE_LAYOUT.width, 0).x + 24;
+const roomBottom =
+  Math.max(
+    projectOfficePoint(OFFICE_LAYOUT.width, OFFICE_LAYOUT.mainDepth).y,
+    projectOfficePoint(OFFICE_LAYOUT.loungeWidth, OFFICE_LAYOUT.height).y,
+  ) + 20;
+export const OFFICE_VIEW = {
+  left: roomLeft,
+  right: roomRight,
+  top: -90,
+  bottom: roomBottom,
+  centerX: (roomLeft + roomRight) / 2,
+  centerY: (roomBottom - 90) / 2,
+};
 
 type Graphics = Phaser.GameObjects.Graphics;
 type Point = { x: number; y: number };
@@ -160,16 +181,37 @@ const drawFixture = (scene: Phaser.Scene, fixture: OfficeFixture): void => {
 export const drawIsometricOffice = (scene: Phaser.Scene): void => {
   const { width, height } = OFFICE_LAYOUT;
   const floor = scene.add.graphics().setDepth(-10_000);
-  box(floor, 0, 0, width, height, 9, [0x89a79e, 0x405e62, 0x304b54], -9);
+  box(floor, 0, 0, width, OFFICE_LAYOUT.mainDepth, 9, [0x89a79e, 0x405e62, 0x304b54], -9);
+  box(
+    floor,
+    0,
+    OFFICE_LAYOUT.mainDepth,
+    OFFICE_LAYOUT.loungeWidth,
+    height - OFFICE_LAYOUT.mainDepth,
+    9,
+    [0x89a79e, 0x405e62, 0x304b54],
+    -9,
+  );
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
+      if (!isOfficeFloor({ x, y })) continue;
       const corners = [
         projectOfficePoint(x, y),
         projectOfficePoint(x + 1, y),
         projectOfficePoint(x + 1, y + 1),
         projectOfficePoint(x, y + 1),
       ];
-      polygon(floor, corners, (x + y) % 2 === 0 ? 0x8aa69b : 0x91ada1);
+      polygon(
+        floor,
+        corners,
+        y >= OFFICE_LAYOUT.mainDepth
+          ? (x + y) % 2 === 0
+            ? 0x99a58f
+            : 0xa2ad96
+          : (x + y) % 2 === 0
+            ? 0x8aa69b
+            : 0x91ada1,
+      );
       floor.lineStyle(1, 0x718f87, 0.35);
       corners.forEach((point, index) => {
         const next = corners[(index + 1) % corners.length]!;
@@ -217,7 +259,7 @@ export const drawIsometricOffice = (scene: Phaser.Scene): void => {
   walls.lineBetween(left.x, left.y, corner.x, corner.y);
   walls.lineBetween(corner.x, corner.y, right.x, right.y);
 
-  for (const start of [2.4, 10]) {
+  for (const start of [2.4, 10, 18.5]) {
     const a = projectOfficePoint(start, 0, 61);
     const b = projectOfficePoint(start + 2.4, 0, 61);
     const c = projectOfficePoint(start + 2.4, 0, 27);
@@ -247,6 +289,23 @@ export const drawIsometricOffice = (scene: Phaser.Scene): void => {
     })
     .setOrigin(0.5)
     .setDepth(-8_900);
+
+  for (const [x, y, label] of [
+    [17, 0.1, 'STUDIO'],
+    [0.1, 14, 'LOUNGE'],
+  ] as const) {
+    const point = projectOfficePoint(x, y, 45);
+    scene.add
+      .text(point.x, point.y, label, {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#e7e4ca',
+        backgroundColor: '#3e5c5b',
+        padding: { x: 5, y: 3 },
+      })
+      .setOrigin(0.5)
+      .setDepth(-8_900);
+  }
 
   OFFICE_LAYOUT.fixtures.forEach((fixture) => drawFixture(scene, fixture));
 };
