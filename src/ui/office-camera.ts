@@ -1,10 +1,14 @@
+import { MASCOT_NAMES, type MascotId } from '../simulation/characters/office-mascots.system';
+
 export interface OfficeCameraActions {
+  select: (id: MascotId) => void;
   zoom: (steps: number) => void;
   fit: () => void;
   follow: () => void;
 }
 
 export interface OfficeControlState {
+  target: MascotId;
   zoom: number;
   minimumZoom: number;
   following: boolean;
@@ -18,10 +22,19 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
   const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out');
   const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in');
   const fit = document.querySelector<HTMLButtonElement>('#fit-office');
-  const follow = document.querySelector<HTMLButtonElement>('#follow-dnake');
+  const follow = document.querySelector<HTMLButtonElement>('#follow-mascot');
   const zoomValue = document.querySelector<HTMLOutputElement>('#zoom-value');
   const activity = document.querySelector<HTMLElement>('#dnake-activity');
   const status = document.querySelector<HTMLElement>('#dnake-status');
+  const mascotSelect = document.querySelector<HTMLSelectElement>('#mascot-select');
+  mascotSelect?.addEventListener(
+    'change',
+    () => {
+      if (mascotSelect.value === 'dnake' || mascotSelect.value === 'zkteco')
+        actions.select(mascotSelect.value);
+    },
+    options,
+  );
   let previous: OfficeControlState | undefined;
 
   zoomOut?.addEventListener('click', () => actions.zoom(-1), options);
@@ -57,10 +70,16 @@ export const bindOfficeControls = (actions: OfficeCameraActions) => {
         previous.minimumZoom === state.minimumZoom &&
         previous.following === state.following &&
         previous.activity === state.activity &&
-        previous.walking === state.walking
+        previous.walking === state.walking &&
+        previous.target === state.target
       )
         return;
       previous = state;
+      if (mascotSelect) mascotSelect.value = state.target;
+      if (follow) {
+        follow.textContent = `Follow ${MASCOT_NAMES[state.target]}`;
+        follow.title = `Follow ${MASCOT_NAMES[state.target]} (F)`;
+      }
       if (zoomValue) zoomValue.value = `${Math.round(state.zoom * 100)}%`;
       zoomOut?.toggleAttribute('disabled', state.zoom <= state.minimumZoom);
       zoomIn?.toggleAttribute('disabled', state.zoom >= 4);

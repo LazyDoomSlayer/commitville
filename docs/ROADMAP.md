@@ -10,7 +10,8 @@ The roadmap is ordered by useful, observable milestones rather than speculative 
 - Repository rules, architecture, privacy boundary, CI, and PR workflow
 - GitHub Pages deployment pipeline
 - Angled 2.5D office, larger framing, zoom/pan and a follow camera
-- Dnake mascot with four-direction walking, fixed-step navigation and furniture collision
+- Dnake and C2-260 mascots with four-direction walking, fixed-step patrols,
+  furniture collision and cell reservations
 
 ## 1. One believable workday
 

@@ -17,9 +17,14 @@
         </div>
         <time id="world-clock" class="hud__clock">MON 08:00</time>
       </section>
-      <aside class="office-status" aria-label="Dnake's activity">
+      <aside class="office-status" aria-label="Selected mascot activity">
         <span class="office-status__eyebrow"
-          ><span class="status-dot"></span> DNAKE <span id="dnake-status">On rounds</span></span
+          ><span class="status-dot"></span>
+          <select id="mascot-select" aria-label="Selected mascot">
+            <option value="dnake">Dnake</option>
+            <option value="zkteco">C2-260</option>
+          </select>
+          <span id="dnake-status">On rounds</span></span
         >
         <p id="dnake-activity" aria-live="polite">Welcoming you to the office</p>
       </aside>
@@ -30,7 +35,7 @@
           <button id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
         </div>
         <button id="fit-office" type="button" title="Fit office (0)">Fit office</button>
-        <button id="follow-dnake" type="button" aria-pressed="false" title="Follow Dnake (F)">
+        <button id="follow-mascot" type="button" aria-pressed="false" title="Follow Dnake (F)">
           Follow Dnake
         </button>
       </nav>

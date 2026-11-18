@@ -18,3 +18,4 @@ Use the next available four-digit number. Accepted ADRs are not rewritten to hid
 - [0003 — Private licensed asset pipeline](0003-private-licensed-asset-pipeline.md)
 
 - [0004 — Isometric office and autonomous navigation](0004-isometric-office-and-autonomous-navigation.md)
+- [0005 — Shared patrols and cell reservations](0005-shared-patrols-and-cell-reservations.md)

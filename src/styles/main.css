@@ -124,6 +124,22 @@ canvas {
   pointer-events: none;
 }
 
+#mascot-select {
+  pointer-events: auto;
+  border: 1px solid #486264;
+  border-radius: 4px;
+  padding: 5px 20px 5px 6px;
+  background: #172a32;
+  color: #c9f2d6;
+  font: inherit;
+  cursor: pointer;
+}
+
+#mascot-select:focus-visible {
+  outline: 2px solid #e9cb93;
+  outline-offset: 2px;
+}
+
 .office-status__eyebrow {
   display: flex;
   align-items: center;

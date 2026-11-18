@@ -95,3 +95,22 @@ and furniture; no purchased artwork is transformed or used as a generation
 reference. The earlier licensed preview is retained at `?view=flat`. It uses the
 mascot's idle frame; autonomous walking and camera controls belong to the angled
 view. Both views work without private asset files.
+
+## ZKTeco C2-260 mascot
+
+`src/rendering/sprites/zkteco.texture.ts` owns an original 36×36 pixel atlas with
+four facing directions, four poses per direction and nine colors. The mascot
+keeps the photographed device's broad charcoal housing, inset corners, connector
+rows and red/green/amber status lights. Rear frames show a mounting bracket;
+profiles show simplified Ethernet, USB and switch details. Small invented eyes,
+a smile and limbs give the screenless controller its character.
+
+The sprite is constructed from solid pixel rectangles, without a generated
+illustration or a photographic texture. Its references are owner-supplied device
+photos, independent of the licensed packs. No photos, wiring, identifiers or
+private configuration are shipped. The status lights are fictional artwork,
+not a live device-health indicator.
+
+C2-260 roams alongside Dnake in the angled office. Use the mascot selector beside
+the activity text to choose which character the camera follows. The earlier flat
+preview retains only Dnake.

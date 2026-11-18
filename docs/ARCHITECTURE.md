@@ -65,7 +65,7 @@ Durable persistence has not been implemented.
 
 ## Simulation loop direction
 
-The world clock remains independent. Dnake navigation now consumes elapsed time
+The world clock remains independent. Mascot navigation consumes elapsed time
 in fixed 50 ms steps, with rendering projecting its position and facing direction.
 Furniture footprints in `src/simulation/office` drive both pathfinding and visual
 placement. No Phaser or DOM APIs enter simulation code. The larger world runtime
@@ -82,7 +82,9 @@ Phaser visual projection + DOM HUD
 ```
 
 A fixed step keeps navigation reproducible as frame timing varies. Rendering
-caps catch-up after background pauses. Camera changes and resizing do not reset
+caps catch-up after background pauses. `OfficePatrolSystem` owns one routine;
+`OfficeMascotsSystem` coordinates Dnake and C2-260 with cell reservations. See
+ADR 0005 for deterministic scheduling and shared-path behavior. Camera changes and resizing do not reset
 the simulation. See ADR 0004 for the isometric and navigation decisions.
 
 ## Configuration

@@ -48,7 +48,11 @@ export const isOfficeWalkable = ({ x, y }: GridPoint): boolean =>
   );
 
 // Breadth-first search gives a stable shortest path through four-way floor cells.
-export const findOfficePath = (start: GridPoint, goal: GridPoint): GridPoint[] => {
+export const findOfficePath = (
+  start: GridPoint,
+  goal: GridPoint,
+  occupied: readonly GridPoint[] = [],
+): GridPoint[] => {
   if (!isOfficeWalkable(start) || !isOfficeWalkable(goal)) return [];
   const key = (point: GridPoint): string => `${point.x},${point.y}`;
   const queue = [start];
@@ -72,7 +76,11 @@ export const findOfficePath = (start: GridPoint, goal: GridPoint): GridPoint[] =
       [0, -1],
     ] as const) {
       const next = { x: current.x + dx, y: current.y + dy };
-      if (isOfficeWalkable(next) && !previous.has(key(next))) {
+      if (
+        isOfficeWalkable(next) &&
+        !previous.has(key(next)) &&
+        !occupied.some((cell) => cell.x === next.x && cell.y === next.y)
+      ) {
         previous.set(key(next), current);
         queue.push(next);
       }

@@ -1,14 +1,21 @@
 import Phaser from 'phaser';
 
-import { DnakeWalkSystem } from '../../simulation/characters/dnake-walk.system';
+import {
+  OfficeMascotsSystem,
+  type MascotId,
+} from '../../simulation/characters/office-mascots.system';
 import { bindOfficeControls } from '../../ui/office-camera';
 import { drawIsometricOffice, projectOfficePoint } from '../office/isometric-office.renderer';
 import { createDnakeTexture, DNAKE_TEXTURE_KEY, dnakeFrame } from '../sprites/dnake.texture';
+import { createZktecoTexture, ZKTECO_TEXTURE_KEY, zktecoFrame } from '../sprites/zkteco.texture';
 
 export class OfficeScene extends Phaser.Scene {
-  private readonly walker = new DnakeWalkSystem();
+  private readonly mascots = new OfficeMascotsSystem();
+  private selectedMascot: MascotId = 'dnake';
   private dnake!: Phaser.GameObjects.Sprite;
   private shadow!: Phaser.GameObjects.Ellipse;
+  private zkteco!: Phaser.GameObjects.Sprite;
+  private zktecoShadow!: Phaser.GameObjects.Ellipse;
   private controls: ReturnType<typeof bindOfficeControls> | undefined;
   private fitZoom = 1;
   private following = false;
@@ -21,6 +28,7 @@ export class OfficeScene extends Phaser.Scene {
 
   create(): void {
     createDnakeTexture(this.textures);
+    createZktecoTexture(this.textures);
     this.cameras.main.setBackgroundColor('#172a32');
     drawIsometricOffice(this);
     this.shadow = this.add.ellipse(0, 0, 27, 11, 0x1d3e43, 0.3);
@@ -29,7 +37,17 @@ export class OfficeScene extends Phaser.Scene {
       .setOrigin(0.5, 0.95)
       .setScale(2);
 
+    this.zktecoShadow = this.add.ellipse(0, 0, 40, 13, 0x1d3e43, 0.3);
+    this.zkteco = this.add
+      .sprite(0, 0, ZKTECO_TEXTURE_KEY, zktecoFrame('south'))
+      .setOrigin(0.5, 34 / 36)
+      .setScale(2);
+
     this.controls = bindOfficeControls({
+      select: (id) => {
+        this.selectedMascot = id;
+        this.updateControls();
+      },
       zoom: (steps) => this.zoomTo(this.cameras.main.zoom + steps * 0.25),
       fit: () => this.fitOffice(),
       follow: () => {
@@ -51,16 +69,23 @@ export class OfficeScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     // A background-tab resume pauses the ambient routine instead of racing
     // through minutes of movement. The domain consumes fixed 50 ms steps.
-    const state = this.walker.advance(Math.min(delta, 250));
-    const position = projectOfficePoint(state.x, state.y);
-    const depth = (state.x + state.y) * 100;
-    const phase = state.walking ? Math.floor(state.walkingMs / 140) % 4 : 0;
-    this.dnake
-      .setPosition(position.x, position.y)
-      .setDepth(depth)
-      .setFrame(dnakeFrame(state.direction, phase));
-    this.shadow.setPosition(position.x, position.y).setDepth(depth - 1);
-    if (this.following) this.cameras.main.centerOn(position.x, position.y - 25);
+    const states = this.mascots.advance(Math.min(delta, 250));
+    for (const id of ['dnake', 'zkteco'] as const) {
+      const state = states[id];
+      const position = projectOfficePoint(state.x, state.y);
+      const depth = (state.x + state.y) * 100;
+      const phase = state.walking ? Math.floor(state.walkingMs / 140) % 4 : 0;
+      const sprite = id === 'dnake' ? this.dnake : this.zkteco;
+      const shadow = id === 'dnake' ? this.shadow : this.zktecoShadow;
+      const frame = id === 'dnake' ? dnakeFrame : zktecoFrame;
+      sprite
+        .setPosition(position.x, position.y)
+        .setDepth(depth)
+        .setFrame(frame(state.direction, phase));
+      shadow.setPosition(position.x, position.y).setDepth(depth - 1);
+      if (this.following && id === this.selectedMascot)
+        this.cameras.main.centerOn(position.x, position.y - 25);
+    }
     this.updateControls();
   }
 
@@ -160,11 +185,12 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private updateControls(): void {
-    const state = this.walker.snapshot();
+    const state = this.mascots.snapshot()[this.selectedMascot];
     this.controls?.update({
       zoom: this.cameras.main.zoom,
       minimumZoom: Math.min(0.5, this.fitZoom),
       following: this.following,
+      target: this.selectedMascot,
       activity: state.activity,
       walking: state.walking,
     });

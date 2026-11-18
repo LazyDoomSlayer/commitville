@@ -24,11 +24,12 @@ Vite listens on all interfaces. This is intentional: it allows testing the devel
 
 ## Camera and view controls
 
-The default office is an angled 2.5D scene. Dnake walks without user input.
+The default office is an angled 2.5D scene. Dnake and C2-260 walk without user input.
 
 - Zoom with the +/− buttons, mouse wheel or a two-finger pinch.
-- Drag the canvas to pan. Panning turns off Follow Dnake.
-- Select **Follow Dnake** (or press F) to keep the mascot centered.
+- Choose Dnake or C2-260 with the selector beside the activity text.
+- Drag the canvas to pan. Panning turns off camera follow.
+- Select **Follow Dnake** or **Follow C2-260** (or press F) to keep the selected mascot centered.
 - Select **Fit office** (or press 0) to return to an overview.
 - Keyboard +/− also zoom. The camera zoom range is bounded.
 
