@@ -8,6 +8,10 @@ The public project contains only fictional sample data and generic artwork. Real
 
 Commitville is in its foundation phase. The current app proves the browser runtime, rendering loop, simulation clock, automated checks, and deployment pipeline.
 
+Dnake, the intercom mascot, greets viewers in both the public placeholder office and
+the private art previews. It is currently stationary; autonomous behavior is a
+future milestone.
+
 ## Stack
 
 - TypeScript for application and simulation logic

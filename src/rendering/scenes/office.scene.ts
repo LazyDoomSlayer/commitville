@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+import dnakeUrl from '../assets/dnake.png';
+
 import {
   PRIVATE_ASSETS_REGISTRY_KEY,
   type DonargAssetPaths,
@@ -65,6 +67,10 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   preload(): void {
+    if (!this.textures.exists('dnake')) {
+      this.load.image('dnake', dnakeUrl);
+    }
+
     const manifest = this.registry.get(PRIVATE_ASSETS_REGISTRY_KEY) as PrivateAssetsManifest | null;
 
     this.pixelwoodPack = manifest?.packs.pixelwoodValley ?? null;
@@ -123,9 +129,38 @@ export class OfficeScene extends Phaser.Scene {
       this.drawFoundationOffice();
     }
 
-    this.scale.on('resize', () => {
+    const restartForResize = (): void => {
       this.scene.restart();
+    };
+    this.scale.on('resize', restartForResize);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off('resize', restartForResize);
     });
+  }
+
+  private drawDnake(x: number, feetY: number, width: number): void {
+    if (!this.textures.exists('dnake')) {
+      return;
+    }
+
+    const spriteWidth = Math.max(32, Math.round(width / 2) * 2);
+    const centerX = Math.round(x);
+    const bottom = Math.round(feetY);
+
+    this.add.ellipse(centerX, bottom - 5, spriteWidth * 0.7, 8, 0x101820, 0.3);
+    this.add
+      .image(centerX, bottom, 'dnake')
+      .setOrigin(0.5, 1)
+      .setDisplaySize(spriteWidth, spriteWidth * 1.5);
+    this.add
+      .text(centerX, bottom + 4, 'DNAKE', {
+        fontFamily: 'monospace',
+        fontSize: spriteWidth >= 80 ? '14px' : '10px',
+        color: '#d7fbe8',
+        backgroundColor: '#101820',
+        padding: { x: 4, y: 2 },
+      })
+      .setOrigin(0.5, 0);
   }
 
   private drawDonargOffice(): void {
@@ -179,6 +214,8 @@ export class OfficeScene extends Phaser.Scene {
         padding: { x: 5, y: 3 },
       })
       .setOrigin(0.5, 0);
+
+    this.drawDnake(left + 400 * officeScale, top + 395 * officeScale, 48 * officeScale);
   }
 
   private drawPixelwoodOffice(): void {
@@ -261,6 +298,8 @@ export class OfficeScene extends Phaser.Scene {
         letterSpacing: 2,
       })
       .setOrigin(0.5);
+
+    this.drawDnake(roomX + Math.min(120, roomWidth * 0.25), roomY + roomHeight - 26, 64);
   }
 
   private drawPixelwoodWorkstation(
@@ -328,11 +367,11 @@ export class OfficeScene extends Phaser.Scene {
     graphics.fillStyle(COLORS.coffee, 1);
     graphics.fillRect(roomX + roomWidth - 92, roomY + 28, 48, 62);
 
-    const statusY = roomWidth >= 700 ? centerY + 8 : roomY + roomHeight - 70;
+    const statusY = roomWidth >= 700 ? centerY + 8 : roomY + 120;
     const statusWidth = Math.max(120, roomWidth - 32);
 
     this.add
-      .text(centerX, statusY, 'THE OFFICE IS BOOTING UP', {
+      .text(centerX, statusY, 'DNAKE IS ON DUTY', {
         color: '#d7fbe8',
         fontFamily: 'monospace',
         fontSize: roomWidth >= 700 ? '16px' : '11px',
@@ -343,7 +382,7 @@ export class OfficeScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(centerX, statusY + 30, 'characters arrive in the next milestone', {
+      .text(centerX, statusY + 30, 'your friendly office companion', {
         color: '#86a8b5',
         fontFamily: 'monospace',
         fontSize: roomWidth >= 700 ? '12px' : '9px',
@@ -351,6 +390,12 @@ export class OfficeScene extends Phaser.Scene {
         wordWrap: { width: statusWidth },
       })
       .setOrigin(0.5);
+
+    this.drawDnake(
+      roomWidth >= 700 ? roomX + roomWidth - 140 : centerX,
+      roomY + roomHeight - 26,
+      roomWidth >= 700 ? 96 : 64,
+    );
   }
 
   private drawDesk(graphics: Phaser.GameObjects.Graphics, x: number, y: number): void {

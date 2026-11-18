@@ -71,3 +71,13 @@ Before integrating another licensed pack:
 3. Copy only the files needed at runtime.
 4. Preserve a functional public fallback.
 5. Do not mix packs until their scale, perspective, palette, and license are verified.
+
+## Dnake mascot
+
+`src/rendering/assets/dnake.png` is an original AI-generated mascot based on
+owner-supplied photos of a DNAKE intercom. It was created with the built-in image
+generation tool, independently of the licensed packs. The reference photos and
+device identifiers are not shipped. Vite bundles the mascot in both public and
+private builds; the office scene owns its placement and renders it with nearest
+filtering at a responsive size. This first integration is a stationary welcoming
+character, without navigation or simulation behavior.
